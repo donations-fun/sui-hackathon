@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Charity {
+  id               String   @id @db.VarChar(66)
+  name             String   @db.VarChar(255)
+  chains           String[] @db.VarChar(255)
+  addressesByChain Json
+  description      String?  @db.Text
+  url              String?  @db.VarChar(255)
+  logo             String?  @db.VarChar(255)
+}
+
+model Token {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(255)
+  symbol      String  @db.VarChar(20)
+  logo        String? @db.VarChar(255)
+  infoByChain Json
+  itsTokenId  String? @db.VarChar(66)
+  analytic    Boolean
+}
