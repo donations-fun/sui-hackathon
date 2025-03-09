@@ -18,7 +18,7 @@ use sui::event;
 use sui::table::{Self, Table};
 use std::type_name::TypeName;
 
-const VERSION: u64 = 1;
+const VERSION: u64 = 2;
 
 /// -----
 /// Error
@@ -245,12 +245,13 @@ public fun remove_known_charity_interchain(
     id.delete();
 }
 
-public fun add_analytics_token(
+public fun add_analytics_token<T>(
     singleton: &mut Singleton,
     _owner: &OwnerCap,
-    token: TypeName
 ) {
     assert!(singleton.version == VERSION, EWrongVersion);
+
+    let token = type_name::get<T>();
 
     singleton.analytics_tokens.add(token, true);
 
@@ -259,12 +260,13 @@ public fun add_analytics_token(
     });
 }
 
-public fun remove_analytics_token(
+public fun remove_analytics_token<T>(
     singleton: &mut Singleton,
     _owner: &OwnerCap,
-    token: TypeName
 ) {
     assert!(singleton.version == VERSION, EWrongVersion);
+
+    let token = type_name::get<T>();
 
     singleton.analytics_tokens.remove(token);
 
@@ -793,13 +795,12 @@ fun test_add_analytics_token() {
         let mut singleton: Singleton = scenario.take_shared<Singleton>();
         let owner = scenario.take_from_sender<OwnerCap>();
 
-        let sui_type = type_name::get<SUI>();
-
-        add_analytics_token(
+        add_analytics_token<SUI>(
             &mut singleton,
             &owner,
-            sui_type
         );
+
+        let sui_type = type_name::get<SUI>();
 
         assert_eq(singleton.analytics_tokens.length(), 1);
         assert_eq(singleton.analytics_tokens.contains(sui_type), true);
@@ -824,17 +825,14 @@ fun test_remove_analytics_token() {
         init(scenario.ctx());
     };
 
-    let sui_type = type_name::get<SUI>();
-
     scenario.next_tx(owner);
     {
         let mut singleton: Singleton = scenario.take_shared<Singleton>();
         let owner = scenario.take_from_sender<OwnerCap>();
 
-        add_analytics_token(
+        add_analytics_token<SUI>(
             &mut singleton,
             &owner,
-            sui_type
         );
 
         assert_eq(singleton.analytics_tokens.length(), 1);
@@ -848,13 +846,14 @@ fun test_remove_analytics_token() {
         let mut singleton: Singleton = scenario.take_shared<Singleton>();
         let owner = scenario.take_from_sender<OwnerCap>();
 
-        remove_analytics_token(
+        remove_analytics_token<SUI>(
             &mut singleton,
             &owner,
-            sui_type
         );
 
         assert_eq(singleton.analytics_tokens.length(), 0);
+
+        let sui_type = type_name::get<SUI>();
 
         assert_eq(event::num_events(), 1);
         assert_eq(event::events_by_type<RemoveAnalyticToken>()[0], RemoveAnalyticToken {
@@ -945,8 +944,6 @@ fun test_donate_with_analytics() {
         init(scenario.ctx());
     };
 
-    let sui_type = type_name::get<SUI>();
-
     scenario.next_tx(owner);
     {
         let mut singleton: Singleton = scenario.take_shared<Singleton>();
@@ -958,10 +955,9 @@ fun test_donate_with_analytics() {
             ascii::string(b"first-charity"),
             charity_address
         );
-        add_analytics_token(
+        add_analytics_token<SUI>(
             &mut singleton,
             &owner,
-            sui_type
         );
 
         test_scenario::return_shared(singleton);
