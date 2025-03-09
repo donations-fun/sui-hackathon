@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { useApp } from "@/context/app.context.tsx";
 import { Charity } from "@/hooks/entities/charity.ts";
-import { SelectedToken } from "@/hooks/entities/token.ts";
+import { SelectedToken, Token } from '@/hooks/entities/token.ts';
+import { SUI_AXELAR_CHAIN } from '@/utils/constants.ts';
 
 export const useDonation = () => {
-  const { charities } = useApp();
+  const { charities, knownTokens } = useApp();
 
   const [selectedCharityId, setSelectedCharityId] = useState<string | null>(null);
   const [selectedToken, setSelectedToken] = useState<SelectedToken | null>(null);
@@ -15,30 +16,26 @@ export const useDonation = () => {
     return Object.keys(charities?.[selectedCharityId]?.addressesByChain || {});
   }, [charities, selectedCharityId]);
 
-  // TODO:
   const availableTokens = useMemo<SelectedToken[]>(() => {
-    return [
-      {
-        id: 0,
-        name: "Sui",
-        symbol: "SUI",
-        infoByChain: {
-          sui: {
-            tokenAddress: "0x2::sui::SUI",
-            decimals: 9,
-          },
-          "eth-sepolia": {
-            tokenAddress: "0x0",
-            decimals: 9,
-          },
-        },
-        itsTokenId: "0x0",
-        analytic: true,
-        logo: "https://cryptologos.cc/logos/sui-sui-logo.svg",
-        currentChainInfo: { tokenAddress: "0x2::sui::SUI", decimals: 9 },
-      },
-    ];
-  }, []);
+    if (!selectedCharityAxelarNetworks.length) {
+      return [];
+    }
+
+    // For charities from other chains, display only ITS Tokens
+    const backendTokens = knownTokens
+      .filter(
+        (tempToken: Token) =>
+          (selectedCharityAxelarNetworks.includes(SUI_AXELAR_CHAIN) ||
+            (tempToken.itsTokenId && selectedCharityAxelarNetworks[0] in tempToken.infoByChain)),
+      )
+      .map((tempToken: Token) => ({
+        currentChainInfo: tempToken.infoByChain[SUI_AXELAR_CHAIN],
+        ...tempToken,
+      }));
+
+    // TODO: Get other tokens from user's wallet
+    return backendTokens;
+  }, [selectedCharityAxelarNetworks,]);
 
   const selectedCharity: Charity | null = useMemo(() => {
     return charities?.[selectedCharityId];
