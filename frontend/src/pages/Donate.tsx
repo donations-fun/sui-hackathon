@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from 'react';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
@@ -10,6 +10,7 @@ import { useDonation } from "@/hooks/donation/useDonation.ts";
 import { TokenSelect } from "@/components/token-select.tsx";
 
 import axelarLogo from "@/assets/images/axelar_logo.svg";
+import { useBalances } from '@/hooks/useBalances.ts';
 
 export default function Donate() {
   const {
@@ -26,8 +27,15 @@ export default function Donate() {
   } = useDonation();
 
   // TODO:
-  const balances = [];
-  const selectedTokenBalance = 0;
+  const balances = useBalances(availableTokens);
+
+  const selectedTokenBalance = useMemo(() => {
+    if (!balances || !availableTokens || !selectedToken) {
+      return 0;
+    }
+
+    return balances[availableTokens.findIndex((token) => token.id == selectedToken.id)];
+  }, [balances, availableTokens, selectedToken]);
 
   const { chains, filteredChain, setFilteredChain } = useChainsFilter();
 
