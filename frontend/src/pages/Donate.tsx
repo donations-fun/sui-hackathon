@@ -10,7 +10,6 @@ import { useDonation } from "@/hooks/donation/useDonation.ts";
 import { TokenSelect } from "@/components/token-select.tsx";
 
 import axelarLogo from "@/assets/images/axelar_logo.svg";
-import { useBalances } from '@/hooks/useBalances.ts';
 
 export default function Donate() {
   const {
@@ -25,17 +24,6 @@ export default function Donate() {
     doDonate,
     isLoading,
   } = useDonation();
-
-  // TODO:
-  const balances = useBalances(availableTokens);
-
-  const selectedTokenBalance = useMemo(() => {
-    if (!balances || !availableTokens || !selectedToken) {
-      return 0;
-    }
-
-    return balances[availableTokens.findIndex((token) => token.id == selectedToken.id)];
-  }, [balances, availableTokens, selectedToken]);
 
   const { chains, filteredChain, setFilteredChain } = useChainsFilter();
 
@@ -72,7 +60,6 @@ export default function Donate() {
                   selectedToken={selectedToken}
                   setSelectedToken={setSelectedToken}
                   availableTokens={availableTokens}
-                  balances={balances}
                 />
                 <Input
                   type="number"
@@ -81,8 +68,8 @@ export default function Donate() {
                   onChange={(e) => setAmount(e.target.value)}
                   className="col-start-2"
                   min="0"
-                  max={selectedTokenBalance}
-                  step="0.1"
+                  max={selectedToken?.balance}
+                  step="0.000001"
                 />
               </div>
             </CardContent>
@@ -96,7 +83,7 @@ export default function Donate() {
                   !selectedToken ||
                   !amount ||
                   isLoading ||
-                  Number(amount) > Number(selectedTokenBalance)
+                  Number(amount) > Number(selectedToken?.balance)
                 }
               >
                 {isLoading ? (
