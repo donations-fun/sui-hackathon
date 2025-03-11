@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/context/app.context.tsx";
 import { Charity } from "@/hooks/entities/charity.ts";
 import { SelectedToken, Token, TokenWithBalance } from "@/hooks/entities/token.ts";
 import { SUI_AXELAR_CHAIN } from "@/utils/constants.ts";
 import { useWalletCoins } from "@/hooks/useWalletCoins.ts";
 import { formatBalance } from "@/utils/helpers.ts";
+import { coinWithBalance, Transaction } from "@mysten/sui/transactions";
+import { useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { toast } from "react-toastify";
+import { ENV } from '@/utils/env.ts';
 
 export const useDonation = () => {
   const { suiAddress, charities, knownTokens } = useApp();
@@ -13,7 +17,7 @@ export const useDonation = () => {
   const [selectedToken, setSelectedToken] = useState<TokenWithBalance | null>(null);
   const [amount, setAmount] = useState("");
 
-  const { walletCoins, isLoading } = useWalletCoins(suiAddress);
+  const { walletCoins, isLoading, refetch } = useWalletCoins(suiAddress);
 
   const selectedCharityAxelarNetworks: string[] = useMemo(() => {
     return Object.keys(charities?.[selectedCharityId]?.addressesByChain || {});
@@ -98,7 +102,7 @@ export const useDonation = () => {
     }
 
     if (!found) {
-      console.log('Works!');
+      console.log("Works!");
       setSelectedToken(null);
     }
   }, [availableTokens, selectedToken, selectedCharityAxelarNetworks]);
@@ -107,10 +111,113 @@ export const useDonation = () => {
     return charities?.[selectedCharityId];
   }, [charities, selectedCharityId]);
 
+  const { mutateAsync: signAndExecuteTransaction, status } = useSignAndExecuteTransaction();
+
+  // TODO: Add a confirmation modal with share to X
+  // Display confirmation modal after all the transactions are finished
+  useEffect(() => {
+    if (status === "success") {
+      toast.success("Donated successfully!");
+
+      // Fetch coins with a timeout so rpc reflects changes
+      setTimeout(() => {
+        refetch();
+      }, 250);
+    } else if (status === "error") {
+      toast.error("Failed to donate...");
+    }
+  }, [status]);
+
+  // TODO: Add ability to swap non-analytic tokens to SUI?
   const doDonate = async () => {
     if (!selectedCharity || !selectedToken || !amount) return;
 
-    console.log("TODO");
+    if (!(SUI_AXELAR_CHAIN in selectedCharity.addressesByChain)) {
+      await doDonateInterchain();
+
+      return;
+    }
+
+    const tx = new Transaction();
+    tx.setSender(suiAddress);
+
+    const coin = coinWithBalance({
+      balance: Math.round(parseFloat(amount) * 10 ** selectedToken.currentChainInfo.decimals),
+      type: selectedToken.currentChainInfo.tokenAddress,
+    });
+
+    tx.moveCall({
+      target: `${ENV.donateContract}::donate::donate`,
+      typeArguments: [selectedToken.currentChainInfo.tokenAddress],
+      arguments: [
+        tx.object(ENV.donateContractSingletonObject),
+        tx.pure("string", selectedCharity.name),
+        coin,
+      ],
+    });
+
+    toast.warning("Waiting for donation...", { autoClose: 15000 });
+
+    // Execute the transaction
+    try {
+      const result = await signAndExecuteTransaction({
+        transaction: tx,
+      });
+
+      console.log("Transaction successful:", result);
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      throw error;
+    }
+  };
+
+  const doDonateInterchain = async () => {
+    const tx = new Transaction();
+    tx.setSender(suiAddress);
+
+    const coin = coinWithBalance({
+      balance: Math.round(parseFloat(amount) * 10 ** selectedToken.currentChainInfo.decimals),
+      type: selectedToken.currentChainInfo.tokenAddress,
+    });
+    const [crossChainGasCoin] = tx.splitCoins(tx.gas, [100_000_000]); // 0.1 SUI. TODO: Update this
+
+    const tokenId = tx.moveCall({
+      target: `${ENV.tokenIdContract}::token_id::from_address`,
+      arguments: [
+        tx.pure.address(selectedToken.itsTokenId),
+      ]
+    });
+
+    tx.moveCall({
+      target: `${ENV.donateContract}::donate::donate_interchain`,
+      typeArguments: [selectedToken.currentChainInfo.tokenAddress],
+      arguments: [
+        tx.object(ENV.donateContractSingletonObject),
+        tx.object(ENV.itsObject),
+        tx.object(ENV.gatewayObject),
+        tx.object(ENV.gasServiceObject),
+        tx.pure("string", selectedCharity.name),
+        coin,
+        tokenId,
+        tx.pure("string", Object.keys(selectedCharity.addressesByChain)[0]), // destination chain
+        crossChainGasCoin,
+        tx.object.clock(),
+      ],
+    });
+
+    toast.warning("Waiting for donation...", { autoClose: 15000 });
+
+    // Execute the transaction
+    try {
+      const result = await signAndExecuteTransaction({
+        transaction: tx,
+      });
+
+      console.log("Transaction successful:", result);
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      throw error;
+    }
   };
 
   return {
@@ -123,6 +230,6 @@ export const useDonation = () => {
     selectedCharityAxelarNetworks,
     availableTokens,
     doDonate,
-    isLoading,
+    isLoading: isLoading || status === "pending",
   };
 };

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
@@ -10,6 +10,7 @@ import { useDonation } from "@/hooks/donation/useDonation.ts";
 import { TokenSelect } from "@/components/token-select.tsx";
 
 import axelarLogo from "@/assets/images/axelar_logo.svg";
+import { SUI_AXELAR_CHAIN } from "@/utils/constants.ts";
 
 export default function Donate() {
   const {
@@ -92,7 +93,12 @@ export default function Donate() {
                     <span className="ml-2">Donating...</span>
                   </>
                 ) : (
-                  <>Donate {!selectedCharityAxelarNetworks.includes("sui") && "(Cross Chain)"}</>
+                  <>
+                    Donate
+                    {selectedCharityAxelarNetworks.length > 0 &&
+                      !selectedCharityAxelarNetworks.includes(SUI_AXELAR_CHAIN) &&
+                      " (Cross Chain)"}
+                  </>
                 )}
               </Button>
             </CardFooter>
