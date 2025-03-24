@@ -8,4 +8,6 @@ export const ENV = {
   itsObject: import.meta.env.VITE_ITS_OBJECT,
   gatewayObject: import.meta.env.VITE_GATEWAY_OBJECT,
   gasServiceObject: import.meta.env.VITE_GAS_SERVICE_OBJECT,
+
+  suiUrl: import.meta.env.VITE_SUI_URL,
 };

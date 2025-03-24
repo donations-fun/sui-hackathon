@@ -1,7 +1,8 @@
 import { SuiClient } from "@mysten/sui/client";
+import { ENV } from '@/utils/env.ts';
 
 const client = new SuiClient({
-  url: "https://fullnode.testnet.sui.io", // TODO: Update for mainnet
+  url: ENV.suiUrl,
 });
 
 export interface Coin {

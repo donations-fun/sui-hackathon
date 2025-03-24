@@ -5,6 +5,15 @@ import { ConfigService } from '@nestjs/config';
 export class ApiConfigService {
   constructor(private readonly configService: ConfigService) {}
 
+  getCorsOrigin(): string[] {
+    const origin = this.configService.get<string>('CORS_ORIGIN');
+    if (origin === undefined) {
+      throw new Error('No CORS Origin present');
+    }
+
+    return origin.split(',');
+  }
+
   getTwitterClientId(): string {
     const twitterClientId = this.configService.get<string>('TWITTER_CLIENT_ID');
     if (!twitterClientId) {
