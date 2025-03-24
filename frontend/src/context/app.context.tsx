@@ -1,12 +1,15 @@
-import React, { createContext, ReactNode, useContext, useMemo } from "react";
+import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Charity } from "@/hooks/entities/charity.ts";
 import { useCharities } from '@/hooks/useCharities.ts';
 import { useTokens } from '@/hooks/useTokens.ts';
 import { Token } from '@/hooks/entities/token.ts';
+import { storageHelper } from '@/utils/storageHelper.ts';
 
 interface AppContextType {
   suiAddress?: string;
+  twitterUsername: string | null;
+  setTwitterUsername: (twitterUsername: string) => void;
   charities: { [id: string]: Charity };
   knownTokens: Token[];
   allAxelarChains: string[];
@@ -33,10 +36,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return [...axelarChains];
   }, [charities]);
 
+  const [twitterUsername, setTwitterUsername] = useState<string>(storageHelper.getJwt()?.twitterUsername || null);
+
   return (
     <AppContext.Provider
       value={{
         suiAddress,
+        twitterUsername,
+        setTwitterUsername,
         charities,
         knownTokens,
         allAxelarChains,

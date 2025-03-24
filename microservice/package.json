@@ -45,6 +45,7 @@
     "class-validator": "^0.14.1",
     "cron": "^3.1.7",
     "js-yaml": "^4.1.0",
+    "lru-cache": "^8.0.5",
     "module-alias": "^2.2.3",
     "nest-winston": "^1.10.0",
     "openapi-client-axios": "^7.5.5",
@@ -57,6 +58,7 @@
   },
   "devDependencies": {
     "@golevelup/ts-jest": "^0.5.0",
+    "@mysten/sui": "^1.17.0",
     "@nestjs/cli": "^10.3.2",
     "@nestjs/schematics": "^10.1.1",
     "@nestjs/testing": "^10.3.9",
@@ -106,5 +108,8 @@
       "^@monorepo/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@monorepo/common": "<rootDir>/libs/common"
     }
+  },
+  "engines": {
+    "node": "20.x"
   }
 }

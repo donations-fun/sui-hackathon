@@ -28,3 +28,12 @@ model Token {
   itsTokenId  String? @db.VarChar(66)
   analytic    Boolean
 }
+
+model User {
+  id              Int      @id @default(autoincrement())
+  twitterId       String?  @unique @db.VarChar(255)
+  twitterUsername String?  @unique @db.VarChar(255)
+  addresses       String[] @db.VarChar(255)
+
+  @@index([addresses])
+}
