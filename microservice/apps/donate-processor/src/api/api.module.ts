@@ -9,6 +9,7 @@ import { TwitterService } from './services/twitter.service';
 import { InMemoryCacheService } from '@monorepo/common/utils/in-memory-cache';
 import { ApiConfigService } from '@monorepo/common/config/api.config.service';
 import { JwtModule } from '@nestjs/jwt';
+import { DonationsController } from './donations.controller';
 
 @Module({
   imports: [
@@ -36,7 +37,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   providers: [InMemoryCacheService, TwitterService],
-  controllers: [CharitiesController, TokensController, TwitterController],
+  controllers: [CharitiesController, TokensController, TwitterController, DonationsController],
   exports: [],
 })
 export class ApiModule {}

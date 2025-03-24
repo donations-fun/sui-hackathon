@@ -37,3 +37,22 @@ model User {
 
   @@index([addresses])
 }
+
+model Donation {
+  id             Int      @id @default(autoincrement())
+  chain          String   @db.VarChar(255)
+  userAddress    String?  @db.VarChar(255)
+  token          String   @db.VarChar(255)
+  charityId      String   @db.VarChar(66)
+  charityName    String?  @db.VarChar(255)
+  amount         String   @db.VarChar(255)
+  sourceChain    String?  @db.VarChar(255)
+  sourceAddress  String?  @db.VarChar(255)
+  txHash         String   @db.VarChar(255)
+  processedBlock Int      @db.Integer
+  createdAt      DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([chain])
+  @@index([userAddress])
+  @@index([charityId])
+}

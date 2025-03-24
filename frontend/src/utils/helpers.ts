@@ -1,3 +1,5 @@
+import { AXELAR_EXPLORER_URL } from '@/utils/constants.ts';
+
 export const formatAddress = (address: string, size: number = 4) => {
   return (address.slice(0, size) + '...' + address.slice(-size))
 }
@@ -33,3 +35,7 @@ export const formatBalance = (balance: bigint, decimals: number) => {
     return integerPart;
   }
 };
+
+export const getAxelarExplorerUrl = (txHash: string) => {
+  return `${AXELAR_EXPLORER_URL}/gmp/${txHash}`;
+}
