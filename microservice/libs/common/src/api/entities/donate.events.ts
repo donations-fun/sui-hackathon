@@ -6,11 +6,13 @@ export interface TokenId {
   id: string; // has 0x prefix
 }
 
-export interface AddAnalyticToken {
-  token: TypeName;
+export interface AddKnownCharity {
+  charity_id: string;
+  charity_name: string;
+  charity_address: string;
 }
 
-export interface AddKnownCharity {
+export interface RemoveKnownCharity {
   charity_id: string;
   charity_name: string;
   charity_address: string;
@@ -23,7 +25,22 @@ export interface AddKnownCharityInterchain {
   charity_address: number[];
 }
 
-export interface Donation {
+export interface RemoveKnownCharityInterchain {
+  charity_id: string;
+  charity_name: string;
+  destination_chain: string;
+  charity_address: number[];
+}
+
+export interface AddAnalyticToken {
+  token: TypeName;
+}
+
+export interface RemoveAnalyticToken {
+  token: TypeName;
+}
+
+export interface DonationEvent {
   user: string;
   token: TypeName;
   charity_id: string;
@@ -31,7 +48,7 @@ export interface Donation {
   amount: string;
 }
 
-export interface DonationInterchain {
+export interface DonationInterchainEvent {
   user: string;
   token: TypeName;
   charity_id: string;
@@ -39,21 +56,4 @@ export interface DonationInterchain {
   amount: string;
   token_id: TokenId;
   destination_chain: string;
-}
-
-export interface RemoveAnalyticToken {
-  token: TypeName;
-}
-
-export interface RemoveKnownCharity {
-  charity_id: string;
-  charity_name: string;
-  charity_address: string;
-}
-
-export interface RemoveKnownCharityInterchain {
-  charity_id: string;
-  charity_name: string;
-  destination_chain: string;
-  charity_address: number[];
 }

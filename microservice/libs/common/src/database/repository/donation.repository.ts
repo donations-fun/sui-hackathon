@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Prisma } from '@prisma/client';
+import { Donation, Prisma } from '@prisma/client';
 import { DonationExtended } from '@monorepo/common/database/entities/donation.extended';
+import { DonationEvent, DonationInterchainEvent } from '@monorepo/common/api/entities/donate.events';
+import { SUI_AXELAR_CHAIN, SUI_TOKEN_TYPE, SUI_TOKEN_TYPE_LONG } from '@monorepo/common/utils/constants';
 
 @Injectable()
 export class DonationRepository {
@@ -9,6 +11,79 @@ export class DonationRepository {
 
   constructor(private readonly prisma: PrismaService) {
     this.logger = new Logger(DonationRepository.name);
+  }
+
+  async createDonationFromDonationEvent(
+    event: DonationEvent,
+    tokenType: string,
+    txHash: string,
+    processedBlock: number,
+  ): Promise<Donation | null> {
+    if (tokenType === SUI_TOKEN_TYPE_LONG) {
+      tokenType = SUI_TOKEN_TYPE;
+    }
+
+    this.logger.log('Create new donation', event, tokenType);
+
+    try {
+      return await this.prisma.donation.create({
+        data: {
+          chain: SUI_AXELAR_CHAIN,
+          userAddress: event.user,
+          token: tokenType,
+          charityId: event.charity_id,
+          charityName: event.charity_name,
+          amount: event.amount,
+          txHash,
+          processedBlock,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        // Unique constraint fails
+        if (e.code === 'P2002') {
+          return null;
+        }
+      }
+      throw e;
+    }
+  }
+
+  async createDonationFromDonationInterchainEvent(
+    event: DonationInterchainEvent,
+    tokenType: string,
+    txHash: string,
+    processedBlock: number,
+  ): Promise<Donation | null> {
+    if (tokenType === SUI_TOKEN_TYPE_LONG) {
+      tokenType = SUI_TOKEN_TYPE;
+    }
+
+    this.logger.log('Create new donation', event, tokenType);
+
+    try {
+      return await this.prisma.donation.create({
+        data: {
+          chain: event.destination_chain,
+          userAddress: event.user,
+          token: tokenType,
+          charityId: event.charity_id,
+          charityName: event.charity_name,
+          amount: event.amount,
+          sourceChain: SUI_AXELAR_CHAIN,
+          txHash,
+          processedBlock,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        // Unique constraint fails
+        if (e.code === 'P2002') {
+          return null;
+        }
+      }
+      throw e;
+    }
   }
 
   async getLatestDonations(chain?: string) {

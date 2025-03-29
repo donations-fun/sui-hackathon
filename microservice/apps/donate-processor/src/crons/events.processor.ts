@@ -4,6 +4,15 @@ import { Locker } from '@monorepo/common/utils/locker';
 import { EventId, SuiClient, SuiEvent, SuiEventFilter } from '@mysten/sui/client';
 import { EventsCursorRepository } from '@monorepo/common/database/repository/eventsCursor.repository';
 import { ApiConfigService } from '@monorepo/common/config/api.config.service';
+import { CharityRepository } from '@monorepo/common/database/repository/charity.repository';
+import {
+  AddAnalyticToken,
+  DonationEvent,
+  DonationInterchainEvent,
+  RemoveAnalyticToken,
+} from '@monorepo/common/api/entities/donate.events';
+import { TokenRepository } from '@monorepo/common/database/repository/token.repository';
+import { DonationRepository } from '@monorepo/common/database/repository/donation.repository';
 
 type EventTracker = {
   type: string;
@@ -19,6 +28,9 @@ export class EventsProcessor {
   constructor(
     private readonly suiClient: SuiClient,
     private readonly eventsCursorRepository: EventsCursorRepository,
+    private readonly charityRepository: CharityRepository,
+    private readonly tokenRepository: TokenRepository,
+    private readonly donationRepository: DonationRepository,
     apiConfigService: ApiConfigService,
   ) {
     this.eventToTrack = {
@@ -85,72 +97,81 @@ export class EventsProcessor {
     for (const event of events) {
       if (!event.type.startsWith(type)) throw new Error('Invalid event module origin');
       const eventData = eventsByType.get(event.type) || [];
-      eventData.push(event.parsedJson);
+      eventData.push({ eventId: event.id, ...(event.parsedJson as any) });
       eventsByType.set(event.type, eventData);
     }
 
     await Promise.all(
       Array.from(eventsByType.entries()).map(async ([eventType, events]) => {
         const eventName = eventType.split('::').pop() || eventType;
-        switch (eventName) {
-          case 'AddKnownCharity':
-            // TODO: handle AddKnownCharity
-            // await prisma.addKnownCharity.createMany({
-            //   data: events as Prisma.AddKnownCharityCreateManyInput[],
-            // });
-            console.log('Created AddKnownCharity events', events);
-            break;
-          case 'RemoveKnownCharity':
-            // TODO: handle RemoveKnownCharity
-            // await prisma.removeKnownCharity.createMany({
-            //   data: events as Prisma.RemoveKnownCharityCreateManyInput[],
-            // });
-            console.log('Created RemoveKnownCharity events', events);
-            break;
-          case 'AddKnownCharityInterchain':
-            // TODO: handle AddKnownCharityInterchain
-            // await prisma.addKnownCharityInterchain.createMany({
-            //   data: events as Prisma.AddKnownCharityInterchainCreateManyInput[],
-            // });
-            console.log('Created AddKnownCharityInterchain events', events);
-            break;
-          case 'RemoveKnownCharityInterchain':
-            // TODO: handle RemoveKnownCharityInterchain
-            // await prisma.removeKnownCharityInterchain.createMany({
-            //   data: events as Prisma.RemoveKnownCharityInterchainCreateManyInput[],
-            // });
-            console.log('Created RemoveKnownCharityInterchain events', events);
-            break;
-          case 'AddAnalyticToken':
-            // TODO: handle AddAnalyticToken
-            // await prisma.addAnalyticToken.createMany({
-            //   data: events as Prisma.AddAnalyticTokenCreateManyInput[],
-            // });
-            console.log('Created AddAnalyticToken events', events);
-            break;
-          case 'RemoveAnalyticToken':
-            // TODO: handle RemoveAnalyticToken
-            // await prisma.removeAnalyticToken.createMany({
-            //   data: events as Prisma.RemoveAnalyticTokenCreateManyInput[],
-            // });
-            console.log('Created RemoveAnalyticToken events', events);
-            break;
-          case 'Donation':
-            // TODO: handle Donation
-            // await prisma.donation.createMany({
-            //   data: events as Prisma.DonationCreateManyInput[],
-            // });
-            console.log('Created Donation events', events);
-            break;
-          case 'DonationInterchain':
-            // TODO: handle DonationInterchain
-            // await prisma.donationInterchain.createMany({
-            //   data: events as Prisma.DonationInterchainCreateManyInput[],
-            // });
-            console.log('Created DonationInterchain events', events);
-            break;
-          default:
-            console.log('Unknown event type:', eventName);
+
+        for (const event of events) {
+          switch (eventName) {
+            case 'AddKnownCharity':
+              await this.charityRepository.createOrUpdateFromAddKnownCharityEvent(event);
+              break;
+            case 'RemoveKnownCharity':
+              await this.charityRepository.updateFromRemoveKnownCharityEvent(event);
+              break;
+            case 'AddKnownCharityInterchain':
+              await this.charityRepository.createOrUpdateFromAddKnownCharityInterchainEvent(event);
+              break;
+            case 'RemoveKnownCharityInterchain':
+              await this.charityRepository.updateFromRemoveKnownCharityInterchainEvent(event);
+              break;
+            case 'AddAnalyticToken':
+              const coinType = '0x' + (event as AddAnalyticToken).token.name;
+              const metadata = await this.suiClient.getCoinMetadata({
+                coinType,
+              });
+
+              const itsTokenId = null; // TODO: Get this somehow in the future?
+
+              if (!metadata) {
+                this.logger.error(`Receiver AddAnalyticToken event but couldn't fetch metadata for token ${coinType}`);
+                return;
+              }
+
+              await this.tokenRepository.createOrUpdateFromAddAnalyticTokenEvent(coinType, metadata, itsTokenId);
+              break;
+            case 'RemoveAnalyticToken':
+              const coinType2 = '0x' + (event as RemoveAnalyticToken).token.name;
+              const metadata2 = await this.suiClient.getCoinMetadata({
+                coinType: coinType2,
+              });
+
+              if (!metadata2) {
+                this.logger.error(
+                  `Receiver RemoveAnalyticToken event but couldn't fetch metadata for token ${coinType2}`,
+                );
+                return;
+              }
+
+              await this.tokenRepository.updateFromRemoveAnalyticTokenEvent(metadata2);
+              break;
+            case 'Donation':
+              const coinType3 = '0x' + (event as DonationEvent).token.name;
+
+              await this.donationRepository.createDonationFromDonationEvent(
+                event,
+                coinType3,
+                event.eventId.txDigest,
+                parseInt(event.eventId.eventSeq),
+              );
+              break;
+            case 'DonationInterchain':
+              const coinType4 = '0x' + (event as DonationInterchainEvent).token.name;
+
+              await this.donationRepository.createDonationFromDonationInterchainEvent(
+                event,
+                coinType4,
+                event.eventId.txDigest,
+                parseInt(event.eventId.eventSeq),
+              );
+              break;
+            default:
+              console.log('Unknown event type:', eventName);
+          }
         }
       }),
     );

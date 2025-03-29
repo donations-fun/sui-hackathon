@@ -1,6 +1,6 @@
 import { ENV } from "@/utils/env.ts";
 
-export const SUI_AXELAR_CHAIN = "sui-2";
+export const SUI_AXELAR_CHAIN = "sui-2"; // TODO: Update when going to mainnet
 
 export const SUI_NETWORK = ENV.suiUrl.includes("testnet") ? "testnet" : "mainnet";
 
