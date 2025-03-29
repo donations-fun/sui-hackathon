@@ -8,3 +8,14 @@ export const fetchLatestDonations = async (chain: string) => {
     throw error;
   }
 };
+
+export const fetchMyDonations = async (chain: string, jwt: string) => {
+  try {
+    const { data } = await api.get("/donations/my-account" + (chain ? `/${chain}` : ""), {
+      headers: { authorization: `Bearer ${jwt}` },
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};

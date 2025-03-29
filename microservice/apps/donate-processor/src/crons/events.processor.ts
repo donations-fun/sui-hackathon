@@ -63,8 +63,6 @@ export class EventsProcessor {
 
         ({ cursor, hasNextPage } = await this.runEventJob(cursor));
       } while (hasNextPage);
-
-      this.logger.debug('Successfully processed poll events.');
     });
   }
 

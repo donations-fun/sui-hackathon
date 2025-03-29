@@ -12,6 +12,7 @@ interface AppContextType {
   setTwitterUsername: (twitterUsername: string) => void;
   charities: { [id: string]: Charity };
   knownTokens: Token[];
+  knownTokensByAddress: { [address: string]: Token };
   allAxelarChains: string[];
 }
 
@@ -38,6 +39,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [twitterUsername, setTwitterUsername] = useState<string>(storageHelper.getJwt()?.twitterUsername || null);
 
+  const knownTokensByAddress = useMemo(() => {
+    return knownTokens.reduce((acc, token) => {
+      for (const info of Object.values(token.infoByChain)) {
+        acc[info.tokenAddress as string] = token;
+      }
+
+      return acc;
+    }, {});
+  }, [knownTokens]);
+
   return (
     <AppContext.Provider
       value={{
@@ -46,6 +57,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setTwitterUsername,
         charities,
         knownTokens,
+        knownTokensByAddress,
         allAxelarChains,
       }}
     >

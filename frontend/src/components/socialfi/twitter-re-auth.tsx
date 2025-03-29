@@ -58,7 +58,7 @@ export default function TwitterReAuth({
       {
         onSuccess: async (result) => {
           try {
-            await handleTwitterReAuthSuccess(address, timestamp, result.signature);
+            await handleTwitterReAuthSuccess(suiAddress, timestamp, result.signature);
           } catch (e) {
             handleTwitterReAuthError(e);
           }

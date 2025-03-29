@@ -6,6 +6,7 @@ import { Link, Route, Routes } from 'react-router-dom';
 import { useApp } from '@/context/app.context.tsx';
 import TwitterReAuth from '@/components/socialfi/twitter-re-auth.tsx';
 import TwitterVerify from '@/components/socialfi/twitter-verify.tsx';
+import { MyAccount } from '@/pages/MyAccount.tsx';
 
 function App() {
   const { suiAddress } = useApp();
@@ -31,6 +32,7 @@ function App() {
 
         <main className="max-w-7xl mx-auto py-12 px-2 sm:px-0">
           <Routes>
+            <Route path="/my-account" element={<MyAccount />} />
             <Route path="*" element={<Donate />} />
           </Routes>
         </main>

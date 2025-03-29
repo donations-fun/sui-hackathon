@@ -105,4 +105,25 @@ export class DonationRepository {
         LIMIT 10
     `;
   }
+
+  async getAccountDonations(twitterUsername: string, offset: number, chain?: string) {
+    return this.prisma.$queryRaw<DonationExtended[]>`
+        SELECT d.chain,
+               COALESCE(d."userAddress", d."sourceAddress") as "user",
+               d.token,
+               d."charityId",
+               d.amount,
+               d."sourceChain",
+               d."txHash",
+               d."createdAt",
+               d."sourceAddress" IS NOT NULL                as "onDestChain"
+        from "Donation" d
+                 JOIN "User" u
+                      ON (u.addresses @> ARRAY [COALESCE(d."userAddress", d."sourceAddress")])
+        where u."twitterUsername" = ${twitterUsername}
+            ${chain ? Prisma.sql`and d.chain = ${chain}` : Prisma.empty}
+        ORDER BY d."createdAt" DESC
+        OFFSET ${offset} LIMIT 10
+    `;
+  }
 }

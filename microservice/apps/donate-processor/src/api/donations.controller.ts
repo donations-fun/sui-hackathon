@@ -1,7 +1,9 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query, Request, UseGuards } from '@nestjs/common';
 import { DonationRepository } from '@monorepo/common/database/repository/donation.repository';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { DonationExtended } from '@monorepo/common/database/entities/donation.extended';
+import { JwtPayload } from './entities/jwt.payload';
+import { AuthGuard } from '../guards/auth.guard';
 
 @ApiTags('donations')
 @Controller('/donations')
@@ -16,5 +18,18 @@ export class DonationsController {
     }
 
     return this.donationsRepository.getLatestDonations(chain);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/my-account/:chain?')
+  @ApiParam({ name: 'chain', required: false })
+  async getMyAccountDonations(
+    @Request() req: any,
+    @Query('offset') offset: number = 0,
+    @Param('chain') chain?: string,
+  ): Promise<DonationExtended[]> {
+    const payload = req.user as JwtPayload;
+
+    return this.donationsRepository.getAccountDonations(payload.twitterUsername, offset, chain);
   }
 }

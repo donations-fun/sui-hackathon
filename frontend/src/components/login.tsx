@@ -6,6 +6,7 @@ import { ConnectButton, ConnectModal, useAutoConnectWallet } from "@mysten/dapp-
 import { Loader2 } from "lucide-react";
 import twitterLogo from "@/assets/images/twitter.png";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
+import { Link } from 'react-router-dom';
 
 export default function Login({
   setIsOpenTwitterLinkAccount,
@@ -31,6 +32,9 @@ export default function Login({
               <img src={twitterLogo} alt="X logo" className="w-6 h-6 cursor-pointer" />
             </PopoverTrigger>
             <PopoverContent className="px-3 py-2 flex justify-center items-center w-auto flex-col">
+              <Link to={"/my-account"} className="font-medium">
+                My Donations
+              </Link>
               <a href={`https://x.com/${twitterUsername}`} target="_blank" className="text-sm">
                 <em>@{twitterUsername}</em>
               </a>
