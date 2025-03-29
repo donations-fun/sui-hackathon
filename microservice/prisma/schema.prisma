@@ -56,3 +56,9 @@ model Donation {
   @@index([userAddress])
   @@index([charityId])
 }
+
+model EventsCursor {
+  id       String @id
+  eventSeq String
+  txDigest String
+}

@@ -58,4 +58,22 @@ export class ApiConfigService {
 
     return jwtPrivateKey.replace(/\\n/gm, "\n");
   }
+
+  getSuiClientUrl(): string {
+    const suiClientUrl = this.configService.get<string>("SUI_CLIENT_URL");
+    if (!suiClientUrl) {
+      throw new Error("No Sui Client Url present");
+    }
+
+    return suiClientUrl;
+  }
+
+  getContractPackageId(): string {
+    const contractPackageId = this.configService.get<string>("CONTRACT_PACKAGE_ID");
+    if (!contractPackageId) {
+      throw new Error("No Contract Package Id present");
+    }
+
+    return contractPackageId;
+  }
 }

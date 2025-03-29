@@ -23,3 +23,6 @@ export class Constants {
     return Constants.oneDay() * 30;
   }
 }
+
+export const SUI_TOKEN_TYPE_NAME = '0x2::sui::SUI';
+export const SUI_TOKEN_TYPE_NAME_LONG = '0000000000000000000000000000000000000000000000000000000000000002::sui::SUI';
