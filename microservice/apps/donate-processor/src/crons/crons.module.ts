@@ -3,6 +3,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { DatabaseModule } from '@monorepo/common/database/database.module';
 import { EventsProcessor } from './events.processor';
 import { ApiModule } from '@monorepo/common/api/api.module';
+import { PriceProcessor } from "./price.processor";
 
 @Module({
   imports: [
@@ -10,7 +11,7 @@ import { ApiModule } from '@monorepo/common/api/api.module';
     ScheduleModule.forRoot(),
     ApiModule,
   ],
-  providers: [EventsProcessor],
+  providers: [EventsProcessor, PriceProcessor],
   exports: [],
 })
 export class CronsModule {}

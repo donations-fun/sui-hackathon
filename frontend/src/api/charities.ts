@@ -1,4 +1,4 @@
-import { api } from "@/api/index.ts";
+import { api } from "@/api/index";
 
 export const fetchCharities = async () => {
   try {

@@ -62,3 +62,19 @@ model EventsCursor {
   eventSeq String
   txDigest String
 }
+
+// Only analytic tokens have prices
+model TokenPrice {
+  chain        String   @db.VarChar(20)
+  tokenAddress String   @db.VarChar(255)
+  name         String   @db.VarChar(255)
+  symbol       String   @db.VarChar(20)
+  logo         String?  @db.VarChar(255)
+  decimals     Int      @db.SmallInt
+  itsTokenId   String?  @db.VarChar(66)
+  lastUsdPrice String   @db.VarChar(255)
+  createdAt    DateTime @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@id([chain, tokenAddress])
+}

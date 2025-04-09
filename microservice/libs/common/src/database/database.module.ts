@@ -5,6 +5,7 @@ import { TokenRepository } from '@monorepo/common/database/repository/token.repo
 import { UserRepository } from '@monorepo/common/database/repository/user.repository';
 import { DonationRepository } from '@monorepo/common/database/repository/donation.repository';
 import { EventsCursorRepository } from '@monorepo/common/database/repository/eventsCursor.repository';
+import { TokenPriceRepository } from '@monorepo/common/database/repository/tokenPrice.repository';
 
 @Module({
   providers: [
@@ -14,7 +15,15 @@ import { EventsCursorRepository } from '@monorepo/common/database/repository/eve
     UserRepository,
     DonationRepository,
     EventsCursorRepository,
+    TokenPriceRepository,
   ],
-  exports: [CharityRepository, TokenRepository, UserRepository, DonationRepository, EventsCursorRepository],
+  exports: [
+    CharityRepository,
+    TokenRepository,
+    UserRepository,
+    DonationRepository,
+    EventsCursorRepository,
+    TokenPriceRepository,
+  ],
 })
 export class DatabaseModule {}
