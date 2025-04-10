@@ -78,3 +78,19 @@ model TokenPrice {
 
   @@id([chain, tokenAddress])
 }
+
+model UserLeaderboard {
+  chain           String   @db.VarChar(20)
+  twitterUsername String   @db.VarChar(255)
+  lastUsdValue    Float
+  createdAt       DateTime @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@id([chain, twitterUsername])
+}
+
+model LastProcessedDonation {
+  chain               String  @id @db.VarChar(255)
+  lastDonationId      Int
+  lastTwitterUsername String? @db.VarChar(255)
+}

@@ -6,10 +6,11 @@ import { CharitiesController } from './charities.controller';
 import { TokensController } from './tokens.controller';
 import { TwitterController } from './twitter.controller';
 import { TwitterService } from './services/twitter.service';
-import { InMemoryCacheService } from '@monorepo/common/utils/in-memory-cache';
 import { ApiConfigService } from '@monorepo/common/config/api.config.service';
 import { JwtModule } from '@nestjs/jwt';
 import { DonationsController } from './donations.controller';
+import { ApiModule as CommonApiModule } from '@monorepo/common/api/api.module';
+import { LeaderboardController } from "./leaderboard.controller";
 
 @Module({
   imports: [
@@ -35,9 +36,10 @@ import { DonationsController } from './donations.controller';
       imports: [ApiConfigModule],
       inject: [ApiConfigService],
     }),
+    CommonApiModule,
   ],
-  providers: [InMemoryCacheService, TwitterService],
-  controllers: [CharitiesController, TokensController, TwitterController, DonationsController],
+  providers: [TwitterService],
+  controllers: [CharitiesController, TokensController, TwitterController, DonationsController, LeaderboardController],
   exports: [],
 })
 export class ApiModule {}

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Donation, Prisma } from '@prisma/client';
-import { DonationExtended } from '@monorepo/common/database/entities/donation.extended';
+import { DonationExtended, DonationExtendedWithId } from "@monorepo/common/database/entities/donation.extended";
 import { DonationEvent, DonationInterchainEvent } from '@monorepo/common/api/entities/donate.events';
 import { SUI_AXELAR_CHAIN, SUI_TOKEN_TYPE, SUI_TOKEN_TYPE_LONG } from '@monorepo/common/utils/constants';
 
@@ -124,6 +124,51 @@ export class DonationRepository {
             ${chain ? Prisma.sql`and d.chain = ${chain}` : Prisma.empty}
         ORDER BY d."createdAt" DESC
         OFFSET ${offset} LIMIT 10
+    `;
+  }
+
+  async getAccountDonationsBeforeIdInclusive(id: number, twitterUsername: string, offset: number, chain: string) {
+    return this.prisma.$queryRaw<DonationExtendedWithId[]>`
+        SELECT d.id,
+               d.chain,
+               COALESCE(d."userAddress", d."sourceAddress") as "user",
+               d.token,
+               d."charityId",
+               d.amount,
+               d."sourceChain",
+               d."txHash",
+               d."createdAt",
+               d."sourceAddress" IS NOT NULL                as "onDestChain"
+        from "Donation" d
+                 JOIN "User" u
+                      ON (u.addresses @> ARRAY [COALESCE(d."userAddress", d."sourceAddress")])
+        where u."twitterUsername" = ${twitterUsername}
+          and d.chain = ${chain}
+          and d.id <= ${id}
+        ORDER BY d.id
+        OFFSET ${offset} LIMIT 10
+    `;
+  }
+
+  async getDonationsAfterId(id: number, chain: string, limit: number) {
+    return this.prisma.$queryRaw<DonationExtendedWithId[]>`
+        SELECT d.id,
+               d.chain,
+               u."twitterUsername"           as "user",
+               d.token,
+               d."charityId",
+               d.amount,
+               d."sourceChain",
+               d."txHash",
+               d."createdAt",
+               d."sourceAddress" IS NOT NULL as "onDestChain"
+        from "Donation" d
+                 JOIN "User" u
+                      ON (u.addresses @> ARRAY [COALESCE(d."userAddress", d."sourceAddress")])
+        where d.chain = ${chain}
+          and d.id > ${id}
+        ORDER BY d.id
+        LIMIT ${limit}
     `;
   }
 }

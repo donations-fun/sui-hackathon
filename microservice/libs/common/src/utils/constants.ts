@@ -28,3 +28,5 @@ export const SUI_TOKEN_TYPE = '0x2::sui::SUI';
 export const SUI_TOKEN_TYPE_LONG = '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI';
 
 export const SUI_AXELAR_CHAIN = "sui-2"; // TODO: Update when going to mainnet
+
+export const ALL_AXELAR_CHAINS = [SUI_AXELAR_CHAIN, 'eth-sepolia']; // TODO: Update these

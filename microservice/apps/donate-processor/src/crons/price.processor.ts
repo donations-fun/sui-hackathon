@@ -3,8 +3,9 @@ import { TokenRepository } from '@monorepo/common/database/repository/token.repo
 import { TokenPriceRepository } from '@monorepo/common/database/repository/tokenPrice.repository';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InfoByChain, TokenExtended } from '@monorepo/common/database/entities/tokenInfo';
-import { SUI_AXELAR_CHAIN, SUI_TOKEN_TYPE, SUI_TOKEN_TYPE_LONG } from "@monorepo/common/utils/constants";
+import { SUI_AXELAR_CHAIN, SUI_TOKEN_TYPE, SUI_TOKEN_TYPE_LONG } from '@monorepo/common/utils/constants';
 import { getTokenPrices } from '@7kprotocol/sdk-ts';
+import { Locker } from '@monorepo/common/utils/locker';
 
 // Mock prices to use on testnets, uses mainnet networks instead
 const mockPrices: any = {
@@ -34,67 +35,68 @@ export class PriceProcessor implements OnModuleInit {
 
   @Cron(CronExpression.EVERY_30_MINUTES)
   async updatePrices(): Promise<void> {
-    this.logger.debug('Starting to update token prices...');
+    await Locker.lock('updatePrices', async () => {
+      this.logger.debug('Starting to update token prices...');
 
-    const analyticTokens = await this.tokensRepository.getAllAnalytic();
+      const analyticTokens = await this.tokensRepository.getAllAnalytic();
 
-    this.logger.debug(`Found ${analyticTokens.length} analytic tokens for which to update prices`);
+      this.logger.debug(`Found ${analyticTokens.length} analytic tokens for which to update prices`);
 
-    const suiTokens = analyticTokens.reduce<TokenExtended[]>((acc, token) => {
-      // @ts-ignore
-      for (const [chain, info] of Object.entries(token.infoByChain as InfoByChain)) {
-        // Ignore non Sui chains
-        if (chain !== SUI_AXELAR_CHAIN) {
+      const suiTokens = analyticTokens.reduce<TokenExtended[]>((acc, token) => {
+        // @ts-ignore
+        for (const [chain, info] of Object.entries(token.infoByChain as InfoByChain)) {
+          // Ignore non Sui chains
+          if (chain !== SUI_AXELAR_CHAIN) {
+            continue;
+          }
+
+          acc.push({
+            currentChainInfo: info,
+            ...token,
+          });
+        }
+
+        return acc;
+      }, []);
+
+      const suiTokenPrices = await this.getTokenPricesRaw(suiTokens);
+
+      this.logger.debug('Retrieved prices for Sui', suiTokenPrices);
+
+      for (const token of suiTokens) {
+        // Mock prices for test networks
+        let actualAddress =
+          token.currentChainInfo.tokenAddress in mockPrices[SUI_AXELAR_CHAIN]
+            ? mockPrices[SUI_AXELAR_CHAIN][token.currentChainInfo.tokenAddress]
+            : token.currentChainInfo.tokenAddress;
+
+        if (actualAddress === SUI_TOKEN_TYPE) {
+          actualAddress = SUI_TOKEN_TYPE_LONG;
+        }
+
+        if (!actualAddress) {
+          this.logger.warn(`No mock address found for ${token.currentChainInfo.tokenAddress} - ${token.name}`);
+
           continue;
         }
 
-        acc.push({
-          currentChainInfo: info,
-          ...token,
-        });
+        const price = suiTokenPrices?.[actualAddress];
+
+        if (!price) {
+          this.logger.error(`Could not get price for token ${token.name} - ${token.currentChainInfo.tokenAddress}`);
+
+          continue;
+        }
+
+        try {
+          await this.tokenPriceRepository.createOrUpdate(SUI_AXELAR_CHAIN, token, price.toString());
+        } catch (e) {
+          this.logger.error(`Could not update price for ${token.name} - ${token.currentChainInfo.tokenAddress}`);
+        }
       }
 
-      return acc;
-    }, []);
-
-    const suiTokenPrices = await this.getTokenPricesRaw(suiTokens);
-
-    this.logger.debug('Retrieved prices for Sui', suiTokenPrices);
-
-    for (const token of suiTokens) {
-      // Mock prices for test networks
-      let actualAddress = (
-        token.currentChainInfo.tokenAddress in mockPrices[SUI_AXELAR_CHAIN]
-          ? mockPrices[SUI_AXELAR_CHAIN][token.currentChainInfo.tokenAddress]
-          : token.currentChainInfo.tokenAddress
-      );
-
-      if (actualAddress === SUI_TOKEN_TYPE) {
-        actualAddress = SUI_TOKEN_TYPE_LONG;
-      }
-
-      if (!actualAddress) {
-        this.logger.warn(`No mock address found for ${token.currentChainInfo.tokenAddress} - ${token.name}`);
-
-        continue;
-      }
-
-      const price = suiTokenPrices?.[actualAddress];
-
-      if (!price) {
-        this.logger.error(`Could not get price for token ${token.name} - ${token.currentChainInfo.tokenAddress}`);
-
-        continue;
-      }
-
-      try {
-        await this.tokenPriceRepository.createOrUpdate(SUI_AXELAR_CHAIN, token, price.toString());
-      } catch (e) {
-        this.logger.error(`Could not update price for ${token.name} - ${token.currentChainInfo.tokenAddress}`);
-      }
-    }
-
-    this.logger.debug(`Successfully updated prices!`);
+      this.logger.debug(`Successfully updated prices!`);
+    });
   }
 
   private async getTokenPricesRaw(tokens: TokenExtended[]) {

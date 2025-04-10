@@ -4,6 +4,7 @@ import { DatabaseModule } from '@monorepo/common/database/database.module';
 import { EventsProcessor } from './events.processor';
 import { ApiModule } from '@monorepo/common/api/api.module';
 import { PriceProcessor } from "./price.processor";
+import { LeaderboardProcessor } from "./leaderboard.processor";
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { PriceProcessor } from "./price.processor";
     ScheduleModule.forRoot(),
     ApiModule,
   ],
-  providers: [EventsProcessor, PriceProcessor],
+  providers: [EventsProcessor, PriceProcessor, LeaderboardProcessor],
   exports: [],
 })
 export class CronsModule {}

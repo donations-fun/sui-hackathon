@@ -6,6 +6,8 @@ import { UserRepository } from '@monorepo/common/database/repository/user.reposi
 import { DonationRepository } from '@monorepo/common/database/repository/donation.repository';
 import { EventsCursorRepository } from '@monorepo/common/database/repository/eventsCursor.repository';
 import { TokenPriceRepository } from '@monorepo/common/database/repository/tokenPrice.repository';
+import { UserLeaderboardRepository } from "@monorepo/common/database/repository/userLeaderboard.repository";
+import { LastProcessedDonationRepository } from "@monorepo/common/database/repository/lastProcessedDonation.repository";
 
 @Module({
   providers: [
@@ -16,6 +18,8 @@ import { TokenPriceRepository } from '@monorepo/common/database/repository/token
     DonationRepository,
     EventsCursorRepository,
     TokenPriceRepository,
+    UserLeaderboardRepository,
+    LastProcessedDonationRepository,
   ],
   exports: [
     CharityRepository,
@@ -24,6 +28,8 @@ import { TokenPriceRepository } from '@monorepo/common/database/repository/token
     DonationRepository,
     EventsCursorRepository,
     TokenPriceRepository,
+    UserLeaderboardRepository,
+    LastProcessedDonationRepository,
   ],
 })
 export class DatabaseModule {}

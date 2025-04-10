@@ -122,7 +122,7 @@ export class TokenRepository {
     return tokens.reduce<Record<string, boolean>>((acc, token) => {
       // @ts-ignore
       for (const info of Object.values(token.infoByChain as InfoByChain)) {
-        acc[info.tokenAddress as string] = true;
+        acc[info.tokenAddress.toLowerCase() as string] = true;
       }
 
       return acc;

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@monorepo/common/database/prisma.service';
 import { TokenExtended } from '@monorepo/common/database/entities/tokenInfo';
+import { TokenPrice } from "@prisma/client";
 
 @Injectable()
 export class TokenPriceRepository {
@@ -28,5 +29,15 @@ export class TokenPriceRepository {
         lastUsdPrice: price,
       },
     });
+  }
+
+  async getAllIndexedByAddress() {
+    const tokenPrices = await this.prisma.tokenPrice.findMany();
+
+    return tokenPrices.reduce<Record<string, TokenPrice>>((acc, price) => {
+      acc[price.tokenAddress.toLowerCase()] = price;
+
+      return acc;
+    }, {});
   }
 }
