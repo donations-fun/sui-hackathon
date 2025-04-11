@@ -148,6 +148,10 @@ export class LeaderboardProcessor implements OnModuleInit {
       newUsdValue = newUsdValue.plus(olderUsdValue);
     }
 
+    this.logger.log(
+      `Processed leaderboard for user ${twitterUsername} for chain ${chain}, added ${newUsdValue.toFixed()} USD`,
+    );
+
     // If user doesn't exist, create leaderboard entry. Else update it with the new total
     if (!existingUserLeaderboard) {
       await this.userLeaderBoardRepository.create(chain, twitterUsername, newUsdValue);
@@ -156,10 +160,6 @@ export class LeaderboardProcessor implements OnModuleInit {
 
       await this.userLeaderBoardRepository.update(chain, twitterUsername, newUsdValue);
     }
-
-    this.logger.debug(
-      `Processed leaderboard for user ${twitterUsername} for chain ${chain}, added ${newUsdValue.toFixed()} USD`,
-    );
   }
 
   private async processOlderUserDonations(

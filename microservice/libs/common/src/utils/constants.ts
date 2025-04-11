@@ -29,4 +29,4 @@ export const SUI_TOKEN_TYPE_LONG = '0x000000000000000000000000000000000000000000
 
 export const SUI_AXELAR_CHAIN = "sui-2"; // TODO: Update when going to mainnet
 
-export const ALL_AXELAR_CHAINS = [SUI_AXELAR_CHAIN, 'eth-sepolia']; // TODO: Update these
+export const ALL_AXELAR_CHAINS = [SUI_AXELAR_CHAIN, 'eth-sepolia', 'avalanche-fuji']; // TODO: Update these

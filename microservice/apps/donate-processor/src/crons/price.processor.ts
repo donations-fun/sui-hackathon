@@ -12,10 +12,9 @@ const mockPrices: any = {
   'sui-2': {
     // will use mainnet
     '0x2::sui::SUI': '0x2::sui::SUI', // Sui = Sui on mainnet
-    // TODO: Update with correct tokens
-    '0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC':
+    '0x383446977921dd1496abbedd150e0752b85f514d3a86b2f131a768847486da68::axlusdc::AXLUSDC':
       '0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC', // AxelarUSDC = USDC on mainnet
-    '0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::eth::ETH':
+    '0x434cb7801b4d0670d36c023af8c89648047a07036c0b87b6716d83116d168039::axleth::AXLETH':
       '0xaf8cd5edc19c4512f4259f0bee101a40d41ebed738ade5874359610ef8eeced5::coin::COIN', // AxlETH = Wrapped Ether on mainnet
   },
 };

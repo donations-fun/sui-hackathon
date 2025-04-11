@@ -88,7 +88,9 @@ export const SuiApi = {
           };
         })
         .reduce((acc, item) => {
-          acc[item.coinType] = item;
+          if (item.totalBalance > 0) {
+            acc[item.coinType] = item;
+          }
 
           return acc;
         }, {});

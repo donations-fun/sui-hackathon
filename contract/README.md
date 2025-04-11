@@ -58,6 +58,15 @@ sui client call \
     "Save the Children" "eth-sepolia" 0x4aAb2278a1325cFdbDF389e0664D100c74B95cf5
 ```
 
+```
+sui client call \
+    --package 0xbfe962bec4f526144de2ce6f90a019048aba11d275f4b392fe75a428f86f5c69 \
+    --module donate \
+    --function add_known_charity_interchain \
+    --args 0x0dfe6072aec2072ec6e2807a25b622b92bf8c79e8e0106f1fba6c1ec27340bb5 0x6ad34246bc237deb35a3dfef40fbbe00e8484bc2ed60d4ffb656c0c3a8d37f05 \
+    " Heifer International" "avalanche-fuji" 0xb30cb3b3E03A508Db2A0a3e07BA1297b47bb0fb1
+```
+
 ### Add Analytic Token
 
 ```

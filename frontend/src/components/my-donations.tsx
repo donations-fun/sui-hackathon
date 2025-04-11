@@ -41,7 +41,7 @@ export default function MyDonations() {
                 }
                 target={"_blank"}
               >
-                <span className="text-sm text-gray-600">{donation.user}</span>
+                <span className="text-sm text-gray-600">{formatAddress(donation.user, 16)}</span>
                 {/* TODO: Add token and proper decimals. The token can also be unknown by our backend, so need to fetch metadata in that case*/}
                 <span className="text-sm font-medium">
                   {formatBalance(

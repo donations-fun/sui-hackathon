@@ -1,6 +1,10 @@
 import { AXELAR_EXPLORER_URL } from '@/utils/constants.ts';
 
 export const formatAddress = (address: string, size: number = 4) => {
+  if (address.length <= size * 2) {
+    return address;
+  }
+
   return (address.slice(0, size) + '...' + address.slice(-size))
 }
 
