@@ -12,6 +12,7 @@ import { TokenSelect } from "@/components/token-select.tsx";
 import axelarLogo from "@/assets/images/axelar_logo.svg";
 import { SUI_AXELAR_CHAIN } from "@/utils/constants.ts";
 import LatestDonations from '@/components/latest-donations.tsx';
+import Leaderboard from "@/components/leaderboard";
 
 export default function Donate() {
   const {
@@ -34,8 +35,7 @@ export default function Donate() {
       <div className="relative flex flex-col lg:flex-row gap-4">
         <div className="lg:w-2/3">
           {/* Gradient background */}
-          <div
-            className="absolute inset-1 bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
+          <div className="absolute inset-1 bg-gradient-to-r from-cyan-400 to-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
 
           {/* Card content */}
           <Card className="relative py-4 bg-white shadow-lg sm:rounded-3xl lg:p-6">
@@ -113,6 +113,9 @@ export default function Donate() {
               </CardDescription>
             </CardFooter>
           </Card>
+        </div>
+        <div className="lg:w-1/3">
+          <Leaderboard />
         </div>
       </div>
 
