@@ -10,6 +10,9 @@ import { useDonation } from "@/hooks/donation/useDonation.ts";
 import { TokenSelect } from "@/components/token-select.tsx";
 
 import axelarLogo from "@/assets/images/axelar_logo.svg";
+import { SUI_AXELAR_CHAIN } from "@/utils/constants.ts";
+import LatestDonations from '@/components/latest-donations.tsx';
+import Leaderboard from "@/components/leaderboard";
 
 export default function Donate() {
   const {
@@ -24,10 +27,6 @@ export default function Donate() {
     doDonate,
     isLoading,
   } = useDonation();
-
-  // TODO:
-  const balances = [];
-  const selectedTokenBalance = 0;
 
   const { chains, filteredChain, setFilteredChain } = useChainsFilter();
 
@@ -64,7 +63,6 @@ export default function Donate() {
                   selectedToken={selectedToken}
                   setSelectedToken={setSelectedToken}
                   availableTokens={availableTokens}
-                  balances={balances}
                 />
                 <Input
                   type="number"
@@ -73,8 +71,8 @@ export default function Donate() {
                   onChange={(e) => setAmount(e.target.value)}
                   className="col-start-2"
                   min="0"
-                  max={selectedTokenBalance}
-                  step="0.1"
+                  max={selectedToken?.balance}
+                  step="0.000001"
                 />
               </div>
             </CardContent>
@@ -88,7 +86,7 @@ export default function Donate() {
                   !selectedToken ||
                   !amount ||
                   isLoading ||
-                  Number(amount) > Number(selectedTokenBalance)
+                  Number(amount) > Number(selectedToken?.balance)
                 }
               >
                 {isLoading ? (
@@ -97,7 +95,12 @@ export default function Donate() {
                     <span className="ml-2">Donating...</span>
                   </>
                 ) : (
-                  <>Donate {!selectedCharityAxelarNetworks.includes("sui") && "(Cross Chain)"}</>
+                  <>
+                    Donate
+                    {selectedCharityAxelarNetworks.length > 0 &&
+                      !selectedCharityAxelarNetworks.includes(SUI_AXELAR_CHAIN) &&
+                      " (Cross Chain)"}
+                  </>
                 )}
               </Button>
             </CardFooter>
@@ -111,6 +114,13 @@ export default function Donate() {
             </CardFooter>
           </Card>
         </div>
+        <div className="lg:w-1/3">
+          <Leaderboard />
+        </div>
+      </div>
+
+      <div className="lg:w-3/4 mx-auto">
+        <LatestDonations />
       </div>
     </>
   );

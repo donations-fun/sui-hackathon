@@ -2,15 +2,70 @@
 
 [move]
 version = 3
-manifest_digest = "B28DA1D15DCFED40B41F42D57D643FF1B42E31A1999232F0552D81B10FFAE20D"
-deps_digest = "F8BBB0CCB2491CA29A3DF03D6F92277A4F3574266507ACD77214D37ECA3F3082"
+manifest_digest = "30AE9F8C68E39CAE36F253FD6BD9C2A73F4E93191D213BC7F8060C25CA2302C8"
+deps_digest = "F9B494B64F0615AED0E98FC12A85B85ECD2BC5185C22D30E7F67786BB52E507C"
+dependencies = [
+  { id = "AxelarGateway", name = "AxelarGateway" },
+  { id = "GasService", name = "GasService" },
+  { id = "InterchainTokenService", name = "InterchainTokenService" },
+  { id = "Sui", name = "Sui" },
+]
+
+[[move.package]]
+id = "Abi"
+source = { git = "https://github.com/buidly/axelar-cgp-sui", rev = "38f155a178816d531dcf342a929f4f91bbd3a763", subdir = "move/abi" }
+
 dependencies = [
   { id = "Sui", name = "Sui" },
 ]
 
 [[move.package]]
+id = "AxelarGateway"
+source = { git = "https://github.com/buidly/axelar-cgp-sui", rev = "38f155a178816d531dcf342a929f4f91bbd3a763", subdir = "move/axelar_gateway" }
+
+dependencies = [
+  { id = "MoveStdlib", name = "MoveStdlib" },
+  { id = "Sui", name = "Sui" },
+  { id = "Utils", name = "Utils" },
+  { id = "VersionControl", name = "VersionControl" },
+]
+
+[[move.package]]
+id = "GasService"
+source = { git = "https://github.com/buidly/axelar-cgp-sui", rev = "38f155a178816d531dcf342a929f4f91bbd3a763", subdir = "move/gas_service" }
+
+dependencies = [
+  { id = "AxelarGateway", name = "AxelarGateway" },
+  { id = "Sui", name = "Sui" },
+  { id = "VersionControl", name = "VersionControl" },
+]
+
+[[move.package]]
+id = "InterchainTokenService"
+source = { git = "https://github.com/buidly/axelar-cgp-sui", rev = "38f155a178816d531dcf342a929f4f91bbd3a763", subdir = "move/interchain_token_service" }
+
+dependencies = [
+  { id = "Abi", name = "Abi" },
+  { id = "AxelarGateway", name = "AxelarGateway" },
+  { id = "RelayerDiscovery", name = "RelayerDiscovery" },
+  { id = "Sui", name = "Sui" },
+  { id = "Utils", name = "Utils" },
+  { id = "VersionControl", name = "VersionControl" },
+]
+
+[[move.package]]
 id = "MoveStdlib"
 source = { git = "https://github.com/MystenLabs/sui.git", rev = "mainnet-v1.38.3", subdir = "crates/sui-framework/packages/move-stdlib" }
+
+[[move.package]]
+id = "RelayerDiscovery"
+source = { git = "https://github.com/buidly/axelar-cgp-sui", rev = "38f155a178816d531dcf342a929f4f91bbd3a763", subdir = "move/relayer_discovery" }
+
+dependencies = [
+  { id = "AxelarGateway", name = "AxelarGateway" },
+  { id = "Sui", name = "Sui" },
+  { id = "VersionControl", name = "VersionControl" },
+]
 
 [[move.package]]
 id = "Sui"
@@ -20,7 +75,31 @@ dependencies = [
   { id = "MoveStdlib", name = "MoveStdlib" },
 ]
 
+[[move.package]]
+id = "Utils"
+source = { git = "https://github.com/buidly/axelar-cgp-sui", rev = "38f155a178816d531dcf342a929f4f91bbd3a763", subdir = "move/utils" }
+
+dependencies = [
+  { id = "Sui", name = "Sui" },
+]
+
+[[move.package]]
+id = "VersionControl"
+source = { git = "https://github.com/buidly/axelar-cgp-sui", rev = "38f155a178816d531dcf342a929f4f91bbd3a763", subdir = "move/version_control" }
+
+dependencies = [
+  { id = "Sui", name = "Sui" },
+]
+
 [move.toolchain-version]
-compiler-version = "1.39.0"
+compiler-version = "1.44.3"
 edition = "2024.beta"
 flavor = "sui"
+
+[env]
+
+[env.testnet]
+chain-id = "4c78adac"
+original-published-id = "0xbfe962bec4f526144de2ce6f90a019048aba11d275f4b392fe75a428f86f5c69"
+latest-published-id = "0xbfe962bec4f526144de2ce6f90a019048aba11d275f4b392fe75a428f86f5c69"
+published-version = "1"

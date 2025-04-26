@@ -6,6 +6,9 @@ edition = "2024.beta" # edition = "legacy" to use legacy (pre-2024) Move
 
 [dependencies]
 Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "mainnet-v1.38.3" }
+GasService = { git = "https://github.com/buidly/axelar-cgp-sui", subdir = "move/gas_service", rev = "38f155a178816d531dcf342a929f4f91bbd3a763" }
+AxelarGateway = { git = "https://github.com/buidly/axelar-cgp-sui", subdir = "move/axelar_gateway", rev = "38f155a178816d531dcf342a929f4f91bbd3a763" }
+InterchainTokenService  = { git = "https://github.com/buidly/axelar-cgp-sui", subdir = "move/interchain_token_service", rev = "38f155a178816d531dcf342a929f4f91bbd3a763" }
 
 # For remote import, use the `{ git = "...", subdir = "...", rev = "..." }`.
 # Revision can be a branch, a tag, and a commit hash.

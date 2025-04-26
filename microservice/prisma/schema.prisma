@@ -11,13 +11,12 @@ datasource db {
 }
 
 model Charity {
-  id               String   @id @db.VarChar(66)
-  name             String   @db.VarChar(255)
-  chains           String[] @db.VarChar(255)
+  id               String  @id @db.VarChar(66)
+  name             String  @db.VarChar(255)
   addressesByChain Json
-  description      String?  @db.Text
-  url              String?  @db.VarChar(255)
-  logo             String?  @db.VarChar(255)
+  description      String? @db.Text
+  url              String? @db.VarChar(255)
+  logo             String? @db.VarChar(255)
 }
 
 model Token {
@@ -28,4 +27,70 @@ model Token {
   infoByChain Json
   itsTokenId  String? @db.VarChar(66)
   analytic    Boolean
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  twitterId       String?  @unique @db.VarChar(255)
+  twitterUsername String?  @unique @db.VarChar(255)
+  addresses       String[] @db.VarChar(255)
+
+  @@index([addresses])
+}
+
+model Donation {
+  id             Int      @id @default(autoincrement())
+  chain          String   @db.VarChar(255)
+  userAddress    String?  @db.VarChar(255)
+  token          String   @db.VarChar(255)
+  charityId      String   @db.VarChar(66)
+  charityName    String?  @db.VarChar(255)
+  amount         String   @db.VarChar(255)
+  sourceChain    String?  @db.VarChar(255)
+  sourceAddress  String?  @db.VarChar(255)
+  txHash         String   @db.VarChar(255)
+  processedBlock Int      @db.Integer
+  createdAt      DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([chain])
+  @@index([userAddress])
+  @@index([charityId])
+}
+
+model EventsCursor {
+  id       String @id
+  eventSeq String
+  txDigest String
+}
+
+// Only analytic tokens have prices
+model TokenPrice {
+  chain        String   @db.VarChar(20)
+  tokenAddress String   @db.VarChar(255)
+  name         String   @db.VarChar(255)
+  symbol       String   @db.VarChar(20)
+  logo         String?  @db.VarChar(255)
+  decimals     Int      @db.SmallInt
+  itsTokenId   String?  @db.VarChar(66)
+  lastUsdPrice String   @db.VarChar(255)
+  createdAt    DateTime @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@id([chain, tokenAddress])
+}
+
+model UserLeaderboard {
+  chain           String   @db.VarChar(20)
+  twitterUsername String   @db.VarChar(255)
+  lastUsdValue    Float
+  createdAt       DateTime @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@id([chain, twitterUsername])
+}
+
+model LastProcessedDonation {
+  chain               String  @id @db.VarChar(255)
+  lastDonationId      Int
+  lastTwitterUsername String? @db.VarChar(255)
 }

@@ -10,7 +10,8 @@ export interface Token {
   logo?: string;
 }
 
-export interface SelectedToken extends Token {
+export interface SelectedToken extends Omit<Token, "id"> {
+  id: string;
   currentChainInfo: ChainInfo;
 }
 

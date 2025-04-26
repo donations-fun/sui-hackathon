@@ -4,11 +4,18 @@ import suiLogo from "@/assets/images/sui_logo.svg";
 import { useApp } from "@/context/app.context.tsx";
 import { ConnectButton, ConnectModal, useAutoConnectWallet } from "@mysten/dapp-kit";
 import { Loader2 } from "lucide-react";
+import twitterLogo from "@/assets/images/twitter.png";
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
+import { Link } from 'react-router-dom';
 
-export default function Login() {
+export default function Login({
+  setIsOpenTwitterLinkAccount,
+}: {
+  setIsOpenTwitterLinkAccount: (isOpen: boolean) => void;
+}) {
   const suiAutoConnectionStatus = useAutoConnectWallet();
 
-  const { suiAddress } = useApp();
+  const { twitterUsername, suiAddress } = useApp();
 
   if (suiAddress) {
     return (
@@ -18,6 +25,29 @@ export default function Login() {
           <ConnectButton />
           <span className="mr-2" />
         </>
+
+        {twitterUsername ? (
+          <Popover>
+            <PopoverTrigger asChild>
+              <img src={twitterLogo} alt="X logo" className="w-6 h-6 cursor-pointer" />
+            </PopoverTrigger>
+            <PopoverContent className="px-3 py-2 flex justify-center items-center w-auto flex-col">
+              <Link to={"/my-account"} className="font-medium">
+                My Donations
+              </Link>
+              <a href={`https://x.com/${twitterUsername}`} target="_blank" className="text-sm">
+                <em>@{twitterUsername}</em>
+              </a>
+            </PopoverContent>
+          </Popover>
+        ) : (
+          <img
+            src={twitterLogo}
+            alt="X logo"
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => setIsOpenTwitterLinkAccount(true)}
+          />
+        )}
       </div>
     );
   }
