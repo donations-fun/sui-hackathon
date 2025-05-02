@@ -26,7 +26,7 @@
     "test:migrate": "dotenv -e .env.test -- prisma migrate deploy"
   },
   "dependencies": {
-    "@7kprotocol/sdk-ts": "^2.3.7",
+    "@flowx-finance/sdk": "^1.10.16",
     "@mysten/sui": "^1.17.0",
     "@nestjs/common": "^10.3.9",
     "@nestjs/config": "^3.2.2",
