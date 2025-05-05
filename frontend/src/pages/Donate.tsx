@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
-import { Loader2 } from "lucide-react";
+import { ChartNoAxesCombined, Loader2 } from "lucide-react";
 import { ChainsFilter } from "@/components/chains-filter.tsx";
 import { useChainsFilter } from "@/hooks/useChainsFilter.tsx";
 import { CharitySelect } from "@/components/charity-select.tsx";
@@ -11,8 +11,15 @@ import { TokenSelect } from "@/components/token-select.tsx";
 
 import axelarLogo from "@/assets/images/axelar_logo.svg";
 import { SUI_AXELAR_CHAIN } from "@/utils/constants.ts";
-import LatestDonations from '@/components/latest-donations.tsx';
+import LatestDonations from "@/components/latest-donations.tsx";
 import Leaderboard from "@/components/leaderboard";
+import { Switch } from "@/components/ui/switch";
+import suiLogo from "@/assets/images/sui_logo.svg";
+import { formatBalance } from "@/utils/helpers";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import twitterLogo from "@/assets/images/twitter.png";
+import { Link } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function Donate() {
   const {
@@ -22,6 +29,9 @@ export default function Donate() {
     setSelectedToken,
     amount,
     setAmount,
+    swapAmount,
+    doSwap,
+    setDoSwap,
     selectedCharityAxelarNetworks,
     availableTokens,
     doDonate,
@@ -75,6 +85,41 @@ export default function Donate() {
                   step="0.000001"
                 />
               </div>
+              {selectedToken && !selectedToken.analytic && swapAmount && (
+                <div className="grid grid-cols-2 items-center gap-4">
+                  <div className="flex items-center gap-1 h-10">
+                    <Switch id="do-swap" label="Do Swap" checked={doSwap} onCheckedChange={setDoSwap} />
+                    <label htmlFor="do-swap" className="text-sm font-medium leading-none cursor-pointer">
+                      Do Swap
+                    </label>
+                    <TooltipProvider className="col-wi">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <ChartNoAxesCombined className="h-4 w-4 cursor-pointer" />
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="bottom"
+                          className="px-3 py-2 flex justify-center items-center w-auto flex-col"
+                        >
+                          If you want the token you have selected to count towards your Leaderboard value, <br />
+                          it needs to be swapped to SUI
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+
+                  {doSwap && (
+                    <div className="col-start-2 relative">
+                      <Input type="number" placeholder="" value={formatBalance(swapAmount, 9)} disabled={true} />
+                      <img
+                        src={suiLogo}
+                        alt="Sui logo"
+                        className="absolute left-0 top-0 translate-y-1/2 -translate-x-6 h-5 w-5"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
             <CardFooter>
               <Button

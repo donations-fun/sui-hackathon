@@ -13,3 +13,6 @@ export const axelarChainsToExplorer = {
 
 export const AXELAR_EXPLORER_URL =
   SUI_NETWORK === "testnet" ? "https://devnet-amplifier.axelarscan.io" : "https://axelarscan.io";
+
+export const SUI_TOKEN_TYPE = '0x2::sui::SUI';
+export const SUI_ITS_TOKEN_ID = '0xad04de873f6b5728c0486945fa730703a82454d8a9df7c2c1db89a5246c06d87'; // TODO: Update when going to mainnet

@@ -1,7 +1,7 @@
 import { SuiClient } from "@mysten/sui/client";
 import { ENV } from '@/utils/env.ts';
 
-const client = new SuiClient({
+export const suiClient = new SuiClient({
   url: ENV.suiUrl,
 });
 
@@ -46,7 +46,7 @@ export const SuiApi = {
           data: coins,
           hasNextPage,
           nextCursor,
-        } = await client.getAllCoins({
+        } = await suiClient.getAllCoins({
           owner: address,
           cursor,
         });
@@ -104,7 +104,7 @@ export const SuiApi = {
   async getCoinsMetadata(coinTypes: string[]): Promise<{ [coinType: string]: CoinMetadata }> {
     const allMetadata: CoinMetadata[] = await Promise.all(
       coinTypes.map((coinType) =>
-        client.getCoinMetadata({
+        suiClient.getCoinMetadata({
           coinType,
         }),
       ),
