@@ -2,7 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "@/context/app.context.tsx";
 import { Charity } from "@/hooks/entities/charity.ts";
 import { SelectedToken, Token, TokenWithBalance } from "@/hooks/entities/token.ts";
-import { SUI_AXELAR_CHAIN, SUI_ITS_TOKEN_ID, SUI_NETWORK, SUI_TOKEN_TYPE } from "@/utils/constants.ts";
+import {
+  FLOWX_COMMISSION,
+  SUI_AXELAR_CHAIN,
+  SUI_ITS_TOKEN_ID,
+  SUI_NETWORK,
+  SUI_TOKEN_TYPE,
+} from "@/utils/constants.ts";
 import { useWalletCoins } from "@/hooks/useWalletCoins.ts";
 import { formatBalance, toDenominatedAmount } from "@/utils/helpers.ts";
 import { coinWithBalance, Transaction } from "@mysten/sui/transactions";
@@ -146,7 +152,7 @@ export const useDonation = () => {
         amountIn: toDenominatedAmount(amount, selectedToken.currentChainInfo.decimals),
         includeSources: null, //optional
         excludeSources: null, //optional
-        commission: null, //optional, and will be explain later
+        commission: FLOWX_COMMISSION,
         maxHops: null, //optional: default and max is 3
         splitDistributionPercent: null, //optional: default 1 and max 100
         excludePools: null, //optional: list pool you want excude example: 0xpool1,0xpool2
@@ -174,6 +180,7 @@ export const useDonation = () => {
   useEffect(() => {
     if (!selectedToken || !amount || selectedToken.analytic) {
       setSwapAmount("");
+      setDoSwap(false);
       return;
     }
 
@@ -234,9 +241,8 @@ export const useDonation = () => {
     const tradeBuilder = new TradeBuilder(SUI_NETWORK, routes.routes); //routes get from quoter
     const trade = tradeBuilder
       .sender(suiAddress) //Optional if you want pass coin later
-      .amountIn(toDenominatedAmount(amount, selectedToken.currentChainInfo.decimals))
       .slippage((0.5 / 100) * 1e6) // Slippage 0.5%
-      .commission(null)
+      .commission(FLOWX_COMMISSION)
       .build();
 
     // TODO: We remove the SteammPreparer from the arrays since it gives an error on Testnet at least

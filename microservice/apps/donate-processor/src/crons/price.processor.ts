@@ -35,7 +35,7 @@ export class PriceProcessor implements OnModuleInit {
     await this.updatePrices();
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron("0 */15 * * * *") // Every 15 minutes
   async updatePrices(): Promise<void> {
     await Locker.lock('updatePrices', async () => {
       this.logger.debug('Starting to update token prices...');
