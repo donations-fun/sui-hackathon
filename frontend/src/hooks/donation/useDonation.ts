@@ -7,7 +7,6 @@ import {
   SUI_AXELAR_CHAIN,
   SUI_ITS_TOKEN_ID,
   SUI_NETWORK,
-  SUI_TOKEN_TYPE,
 } from "@/utils/constants.ts";
 import { useWalletCoins } from "@/hooks/useWalletCoins.ts";
 import { formatBalance, toDenominatedAmount } from "@/utils/helpers.ts";
@@ -18,6 +17,7 @@ import { ENV } from "@/utils/env.ts";
 import { AggregatorQuoter, Coin, SingleQuoteQueryParams, TradeBuilder } from "@flowx-finance/sdk";
 import { suiClient } from "@/api/sui";
 import { GetRoutesResult } from "@flowx-finance/sdk/src/universal-router/quoters/types";
+import { SUI_TYPE_ARG } from '@mysten/sui/utils';
 
 export const useDonation = () => {
   const { suiAddress, charities, knownTokens } = useApp();
@@ -148,7 +148,7 @@ export const useDonation = () => {
       const quoter = new AggregatorQuoter(SUI_NETWORK);
       const params: SingleQuoteQueryParams = {
         tokenIn: selectedToken.currentChainInfo.tokenAddress,
-        tokenOut: SUI_TOKEN_TYPE,
+        tokenOut: SUI_TYPE_ARG,
         amountIn: toDenominatedAmount(amount, selectedToken.currentChainInfo.decimals),
         includeSources: null, //optional
         excludeSources: null, //optional
@@ -205,7 +205,7 @@ export const useDonation = () => {
 
     if (doSwap && swapAmount && swapAmount !== "0") {
       coin = await buildSwapTx(tx, coin);
-      donatedTokenType = SUI_TOKEN_TYPE;
+      donatedTokenType = SUI_TYPE_ARG;
     }
 
     if (!(SUI_AXELAR_CHAIN in selectedCharity.addressesByChain)) {
@@ -259,7 +259,7 @@ export const useDonation = () => {
 
     const tokenId = tx.moveCall({
       target: `${ENV.tokenIdContract}::token_id::from_address`,
-      arguments: [tx.pure.address(donatedTokenType === SUI_TOKEN_TYPE ? SUI_ITS_TOKEN_ID : selectedToken.itsTokenId)],
+      arguments: [tx.pure.address(donatedTokenType === SUI_TYPE_ARG ? SUI_ITS_TOKEN_ID : selectedToken.itsTokenId)],
     });
 
     tx.moveCall({

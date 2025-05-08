@@ -1,6 +1,7 @@
 import { api } from "@/api/index.ts";
+import { DonationExtended } from "@/hooks/entities/donation.extended";
 
-export const fetchLatestDonations = async (chain: string) => {
+export const fetchLatestDonations = async (chain: string): Promise<DonationExtended[]> => {
   try {
     const { data } = await api.get("/donations/latest" + (chain ? `/${chain}` : ""));
     return data;

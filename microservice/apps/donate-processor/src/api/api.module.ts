@@ -10,7 +10,9 @@ import { ApiConfigService } from '@monorepo/common/config/api.config.service';
 import { JwtModule } from '@nestjs/jwt';
 import { DonationsController } from './donations.controller';
 import { ApiModule as CommonApiModule } from '@monorepo/common/api/api.module';
-import { LeaderboardController } from "./leaderboard.controller";
+import { LeaderboardController } from './leaderboard.controller';
+import { GeneralService } from './services/general.service';
+import { GeneralController } from './general.controller';
 
 @Module({
   imports: [
@@ -38,8 +40,15 @@ import { LeaderboardController } from "./leaderboard.controller";
     }),
     CommonApiModule,
   ],
-  providers: [TwitterService],
-  controllers: [CharitiesController, TokensController, TwitterController, DonationsController, LeaderboardController],
+  providers: [TwitterService, GeneralService],
+  controllers: [
+    CharitiesController,
+    TokensController,
+    TwitterController,
+    DonationsController,
+    LeaderboardController,
+    GeneralController,
+  ],
   exports: [],
 })
 export class ApiModule {}

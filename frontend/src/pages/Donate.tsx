@@ -18,6 +18,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import suiLogo from "@/assets/images/sui_logo.svg";
 import axelarLogo from "@/assets/images/axelar_logo.svg";
 import flowxLogo from "@/assets/images/flowx_logo.svg";
+import { SUI_DECIMALS } from '@mysten/sui/utils';
 
 export default function Donate() {
   const {
@@ -115,7 +116,7 @@ export default function Donate() {
 
                   {doSwap && (
                     <div className="col-start-2 relative">
-                      <Input type="number" placeholder="" value={formatBalance(swapAmount, 9)} disabled={true} />
+                      <Input type="number" placeholder="" value={formatBalance(swapAmount, SUI_DECIMALS)} disabled={true} />
                       <img
                         src={suiLogo}
                         alt="Sui logo"

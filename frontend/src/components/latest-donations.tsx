@@ -2,17 +2,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.t
 import { useLatestDonations } from "@/hooks/useLatestDonations.ts";
 import { Loader2, SquareArrowUpRight } from "lucide-react";
 import { axelarChainsToExplorer } from "@/utils/constants.ts";
-import { formatAddress, formatBalance, getAxelarExplorerUrl } from '@/utils/helpers.ts';
+import { formatAddress, getAxelarExplorerUrl } from "@/utils/helpers.ts";
 import React from "react";
 import { useApp } from "@/context/app.context.tsx";
 import { ChainsFilter } from "@/components/chains-filter.tsx";
 import { useChainsFilter } from "@/hooks/useChainsFilter.tsx";
 import DynamicImage from "@/components/dynamic-image.tsx";
+import { CoinDisplay } from "@/components/coin-display";
 
 export default function LatestDonations() {
   const { chains, filteredChain, setFilteredChain } = useChainsFilter();
 
-  const { donations, isLoading } = useLatestDonations(filteredChain);
+  const { donations, isLoading, coinsMetadata } = useLatestDonations(filteredChain);
   const { charities, knownTokensByAddress } = useApp();
 
   return (
@@ -43,17 +44,16 @@ export default function LatestDonations() {
                 <span className="text-sm text-gray-600">
                   <em>{donation.user.startsWith("0x") ? formatAddress(donation.user) : "@" + donation.user}</em>
                 </span>
-                {/* TODO: Add token and proper decimals. The token can also be unknown by our backend, so need to fetch metadata in that case*/}
                 <span className="text-sm font-medium">
-                  {formatBalance(BigInt(donation.amount), 6)} {knownTokensByAddress?.[donation.token]?.name || formatAddress(donation.token)}
+                  <CoinDisplay
+                    donation={donation}
+                    knownTokensByAddress={knownTokensByAddress}
+                    coinsMetadata={coinsMetadata}
+                  />
                 </span>
                 <span className="text-xs text-gray-500">{charities?.[donation.charityId]?.name}</span>
                 <span className="flex">
-                  <DynamicImage
-                    path={`axelarChains/${donation.chain}.svg`}
-                    alt={donation.chain}
-                    className="w-4 h-4"
-                  />
+                  <DynamicImage path={`axelarChains/${donation.chain}.svg`} alt={donation.chain} className="w-4 h-4" />
                   {donation.sourceChain && <SquareArrowUpRight className="w-3 h-3" />}
                 </span>
               </a>
