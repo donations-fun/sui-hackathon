@@ -18,7 +18,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import suiLogo from "@/assets/images/sui_logo.svg";
 import axelarLogo from "@/assets/images/axelar_logo.svg";
 import flowxLogo from "@/assets/images/flowx_logo.svg";
-import { SUI_DECIMALS } from '@mysten/sui/utils';
+import { SUI_DECIMALS } from "@mysten/sui/utils";
+import { DonationSuccess } from "@/components/donation-success";
+import { useApp } from "@/context/app.context";
 
 export default function Donate() {
   const {
@@ -35,9 +37,13 @@ export default function Donate() {
     availableTokens,
     doDonate,
     isLoading,
+    isSuccessModalOpen,
+    setIsSuccessModalOpen,
   } = useDonation();
 
   const { chains, filteredChain, setFilteredChain } = useChainsFilter();
+
+  const { charities } = useApp();
 
   return (
     <>
@@ -108,7 +114,11 @@ export default function Donate() {
                       </TooltipProvider>
                     </div>
 
-                    <a href="https://flowx.finance/" target="_blank" className="text-muted-foreground flex items-center text-xs ">
+                    <a
+                      href="https://flowx.finance/"
+                      target="_blank"
+                      className="text-muted-foreground flex items-center text-xs "
+                    >
                       Swaps by
                       <img src={flowxLogo} alt="Axelar Network" className="h-7 inline-flex -ml-4" />
                     </a>
@@ -116,7 +126,12 @@ export default function Donate() {
 
                   {doSwap && (
                     <div className="col-start-2 relative">
-                      <Input type="number" placeholder="" value={formatBalance(swapAmount, SUI_DECIMALS)} disabled={true} />
+                      <Input
+                        type="number"
+                        placeholder=""
+                        value={formatBalance(swapAmount, SUI_DECIMALS)}
+                        disabled={true}
+                      />
                       <img
                         src={suiLogo}
                         alt="Sui logo"
@@ -173,6 +188,19 @@ export default function Donate() {
       <div className="lg:w-3/4 mx-auto">
         <LatestDonations />
       </div>
+
+      {selectedToken && selectedCharityId && (
+        <DonationSuccess
+          isOpen={isSuccessModalOpen}
+          onClose={() => {
+            setIsSuccessModalOpen(false);
+            setAmount("");
+          }}
+          donationAmount={amount}
+          token={selectedToken}
+          charity={charities[selectedCharityId]}
+        />
+      )}
     </>
   );
 }

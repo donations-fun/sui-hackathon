@@ -2,12 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "@/context/app.context.tsx";
 import { Charity } from "@/hooks/entities/charity.ts";
 import { SelectedToken, Token, TokenWithBalance } from "@/hooks/entities/token.ts";
-import {
-  FLOWX_COMMISSION,
-  SUI_AXELAR_CHAIN,
-  SUI_ITS_TOKEN_ID,
-  SUI_NETWORK,
-} from "@/utils/constants.ts";
+import { FLOWX_COMMISSION, SUI_AXELAR_CHAIN, SUI_ITS_TOKEN_ID, SUI_NETWORK } from "@/utils/constants.ts";
 import { useWalletCoins } from "@/hooks/useWalletCoins.ts";
 import { formatBalance, toDenominatedAmount } from "@/utils/helpers.ts";
 import { coinWithBalance, Transaction } from "@mysten/sui/transactions";
@@ -17,7 +12,7 @@ import { ENV } from "@/utils/env.ts";
 import { AggregatorQuoter, Coin, SingleQuoteQueryParams, TradeBuilder } from "@flowx-finance/sdk";
 import { suiClient } from "@/api/sui";
 import { GetRoutesResult } from "@flowx-finance/sdk/src/universal-router/quoters/types";
-import { SUI_TYPE_ARG } from '@mysten/sui/utils';
+import { SUI_TYPE_ARG } from "@mysten/sui/utils";
 
 export const useDonation = () => {
   const { suiAddress, charities, knownTokens } = useApp();
@@ -27,6 +22,7 @@ export const useDonation = () => {
   const [amount, setAmount] = useState("");
   const [swapAmount, setSwapAmount] = useState("");
   const [doSwap, setDoSwap] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const { walletCoins, isLoading, refetch } = useWalletCoins(suiAddress);
 
@@ -110,7 +106,6 @@ export const useDonation = () => {
       if (token.id === selectedToken.id) {
         if (JSON.stringify(token) !== stringifiedToken) {
           setSelectedToken(token);
-          setAmount("");
         }
         found = true;
         break;
@@ -132,7 +127,11 @@ export const useDonation = () => {
   // Display confirmation modal after all the transactions are finished
   useEffect(() => {
     if (status === "success") {
-      toast.success("Donated successfully!");
+      toast.dismiss({
+        id: "waiting-for-donation",
+      });
+
+      setIsSuccessModalOpen(true);
 
       // Fetch coins with a timeout so rpc reflects changes
       setTimeout(() => {
@@ -220,7 +219,7 @@ export const useDonation = () => {
       arguments: [tx.object(ENV.donateContractSingletonObject), tx.pure("string", selectedCharity.name), coin],
     });
 
-    toast.warning("Waiting for donation...", { autoClose: 15000 });
+    toast.warning("Waiting for donation...", { autoClose: 15000, toastId: "waiting-for-donation" });
 
     // Execute the transaction
     try {
@@ -279,7 +278,7 @@ export const useDonation = () => {
       ],
     });
 
-    toast.warning("Waiting for donation...", { autoClose: 15000 });
+    toast.warning("Waiting for donation...", { autoClose: 15000, toastId: "waiting-for-donation" });
 
     // Execute the transaction
     try {
@@ -308,5 +307,7 @@ export const useDonation = () => {
     availableTokens,
     doDonate,
     isLoading: isLoading || status === "pending",
+    isSuccessModalOpen,
+    setIsSuccessModalOpen,
   };
 };
