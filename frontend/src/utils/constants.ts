@@ -26,3 +26,5 @@ export const FLOWX_COMMISSION = new Commission(
   (0.2 / 100) * 1e6, // Commission 0.2%
   true,
 );
+
+export const ITEMS_PER_PAGE = 10;

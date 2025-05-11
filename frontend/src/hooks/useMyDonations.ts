@@ -17,15 +17,18 @@ export const useMyDonations = (
   error?: any;
   refetch?: () => Promise<any>;
   coinsMetadata: CoinsMetadata;
+  currentPage: number,
+  setCurrentPage: (page: number) => void;
 } => {
   const { setTwitterUsername } = useApp();
   const navigate = useNavigate();
 
   const jwt = storageHelper.getJwt();
 
+  const [currentPage, setCurrentPage] = useState(0);
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["my-donations", chain, jwt?.twitterUsername || ""],
-    queryFn: () => fetchMyDonations(chain, jwt?.jwt || ""),
+    queryKey: ["my-donations", chain, jwt?.twitterUsername || "", currentPage],
+    queryFn: () => fetchMyDonations(chain, jwt?.jwt || "", currentPage),
     refetchOnWindowFocus: false,
     staleTime: 30_000,
   });
@@ -56,11 +59,17 @@ export const useMyDonations = (
     ).then((result) => setCoinsMetadata(result));
   }, [data]);
 
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [chain]);
+
   return {
     donations: data,
     isLoading,
     error,
     refetch,
     coinsMetadata,
+    currentPage,
+    setCurrentPage,
   };
 };

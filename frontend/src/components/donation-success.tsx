@@ -73,7 +73,6 @@ export function DonationSuccess({ isOpen, onClose, donationAmount, token, charit
   };
 
   const handleShareOnTwitter = () => {
-    // TODO: Add X account to charities
     const tweetText = encodeURIComponent(
       `❤️I just donated ${donationAmount} $${token.symbol} to ${charity.twitterUsername ? `@${charity.twitterUsername}` : charity.name} through @donations_fun!\n\nJoin me in making a difference!\n👉https://donations.fun`,
     );

@@ -13,11 +13,26 @@ export interface ExtendedCoinsMetadata {
   [coinType: string]: ExtendedCoinMetadata;
 }
 
+let coinsMetadataCache: ExtendedCoinsMetadata = {};
+
 export const getCoinsMetadata = async (coinTypes: string[]): Promise<ExtendedCoinsMetadata> => {
-  try {
-    const { data } = await api.get(`/general/coins-metadata?coinTypes=${coinTypes.concat(",")}`);
-    return data;
-  } catch (error) {
-    throw error;
+  const newCoinTypes = coinTypes.filter((coinType) => !(coinType in coinsMetadataCache));
+
+  // Save coins metadata to local cache and only fetch data for new coins
+  if (newCoinTypes.length > 0) {
+    try {
+      const { data } = await api.get<ExtendedCoinsMetadata>(
+        `/general/coins-metadata?coinTypes=${newCoinTypes.concat(",")}`,
+      );
+
+      coinsMetadataCache = {
+        ...coinsMetadataCache,
+        ...data,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
+
+  return coinsMetadataCache;
 };

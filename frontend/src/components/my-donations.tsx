@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Loader2, SquareArrowRight } from "lucide-react";
-import { axelarChainsToExplorer } from "@/utils/constants.ts";
+import { axelarChainsToExplorer, ITEMS_PER_PAGE } from "@/utils/constants.ts";
 import { formatAddress, getAxelarExplorerUrl } from "@/utils/helpers.ts";
 import { useMyDonations } from "@/hooks/useMyDonations.ts";
 import React from "react";
@@ -9,12 +9,13 @@ import { ChainsFilter } from "@/components/chains-filter.tsx";
 import { useChainsFilter } from "@/hooks/useChainsFilter.tsx";
 import DynamicImage from "@/components/dynamic-image.tsx";
 import { CoinDisplay } from "@/components/coin-display";
+import { Pagination } from "@/components/pagination";
 
 export default function MyDonations() {
-  const { chains, filteredChain, setFilteredChain } = useChainsFilter();
-
-  const { donations, isLoading, coinsMetadata } = useMyDonations(filteredChain);
   const { charities, knownTokensByAddress } = useApp();
+
+  const { chains, filteredChain, setFilteredChain } = useChainsFilter();
+  const { donations, isLoading, coinsMetadata, currentPage, setCurrentPage } = useMyDonations(filteredChain);
 
   return (
     <Card className="relative py-4 bg-white shadow-lg sm:rounded-3xl lg:p-6">
@@ -74,7 +75,14 @@ export default function MyDonations() {
             ))}
         </ul>
       </CardContent>
-      {/*  TODO: Add pagination */}
+      <div className="mt-6">
+        <Pagination
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          hasMore={donations?.length >= ITEMS_PER_PAGE}
+          maxDisplayedPages={3}
+        />
+      </div>
     </Card>
   );
 }
