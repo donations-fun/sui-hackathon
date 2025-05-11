@@ -75,7 +75,7 @@ export function DonationSuccess({ isOpen, onClose, donationAmount, token, charit
   const handleShareOnTwitter = () => {
     // TODO: Add X account to charities
     const tweetText = encodeURIComponent(
-      `❤️I just donated ${donationAmount} $${token.symbol} to ${charity.name} through @donations_fun!\n\nJoin me in making a difference!\n👉https://donations.fun`,
+      `❤️I just donated ${donationAmount} $${token.symbol} to ${charity.twitterUsername ? `@${charity.twitterUsername}` : charity.name} through @donations_fun!\n\nJoin me in making a difference!\n👉https://donations.fun`,
     );
     window.open(`https://x.com/intent/tweet?text=${tweetText}`, "_blank", "noopener,noreferrer");
   };
@@ -116,9 +116,7 @@ export function DonationSuccess({ isOpen, onClose, donationAmount, token, charit
           <div className="rounded-full bg-green-100 p-3 mb-4">
             <Check className="h-10 w-10 text-green-500" />
           </div>
-          <p className="text-center">
-            Thank you for your generosity! Your donation will help make a difference.
-          </p>
+          <p className="text-center">Thank you for your generosity! Your donation will help make a difference.</p>
         </div>
         <DialogFooter className="sm:justify-center">
           <Button onClick={handleShareOnTwitter} className="flex items-center gap-2 rounded-lg">

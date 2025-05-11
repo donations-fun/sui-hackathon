@@ -13,7 +13,6 @@ export interface ExtendedCoinsMetadata {
   [coinType: string]: ExtendedCoinMetadata;
 }
 
-// TODO: Optimise calls to this function
 export const getCoinsMetadata = async (coinTypes: string[]): Promise<ExtendedCoinsMetadata> => {
   try {
     const { data } = await api.get(`/general/coins-metadata?coinTypes=${coinTypes.concat(",")}`);

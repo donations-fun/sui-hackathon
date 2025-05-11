@@ -5,4 +5,5 @@ export interface Charity {
   description?: string;
   url?: string;
   logo?: string;
+  twitterUsername?: string;
 }

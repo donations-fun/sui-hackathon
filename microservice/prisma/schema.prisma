@@ -17,6 +17,7 @@ model Charity {
   description      String? @db.Text
   url              String? @db.VarChar(255)
   logo             String? @db.VarChar(255)
+  twitterUsername  String? @unique @db.VarChar(255)
 }
 
 model Token {
