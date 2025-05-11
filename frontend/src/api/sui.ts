@@ -1,6 +1,6 @@
-import { SuiClient } from "@mysten/sui/client";
+import { CoinMetadata, SuiClient } from '@mysten/sui/client';
 import { ENV } from '@/utils/env.ts';
-import { getCoinsMetadata } from '@/api/general';
+import { ExtendedCoinMetadata, getCoinsMetadata } from '@/api/general';
 
 export const suiClient = new SuiClient({
   url: ENV.suiUrl,
@@ -19,16 +19,7 @@ export interface TotalCoin {
   totalBalance: bigint;
   coinType: string;
   coinObjects: Coin[];
-  metadata?: CoinMetadata;
-}
-
-export interface CoinMetadata {
-  decimals: number;
-  description: string;
-  iconUrl?: string;
-  id?: string;
-  name: string;
-  symbol: string;
+  metadata?: ExtendedCoinMetadata;
 }
 
 export const SuiApi = {

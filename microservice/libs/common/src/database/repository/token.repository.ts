@@ -13,11 +13,7 @@ export class TokenRepository {
     this.logger = new Logger(TokenRepository.name);
   }
 
-  async createOrUpdateFromAddAnalyticTokenEvent(
-    tokenType: string,
-    metadata: CoinMetadata,
-    itsTokenId: string | null,
-  ) {
+  async createOrUpdateFromAddAnalyticTokenEvent(tokenType: string, metadata: CoinMetadata, itsTokenId: string | null) {
     if (tokenType === SUI_TOKEN_TYPE_LONG) {
       tokenType = SUI_TOKEN_TYPE;
     }
@@ -101,7 +97,11 @@ export class TokenRepository {
   }
 
   async getAll() {
-    return this.prisma.token.findMany();
+    return this.prisma.token.findMany({
+      orderBy: {
+        analytic: 'desc',
+      },
+    });
   }
 
   async getAllAnalytic() {

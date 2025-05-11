@@ -22,6 +22,7 @@ export const useDonation = () => {
   const [amount, setAmount] = useState("");
   const [swapAmount, setSwapAmount] = useState("");
   const [doSwap, setDoSwap] = useState(false);
+  const [doSwapIsRequired, setDoSwapIsRequired] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const { walletCoins, isLoading, refetch } = useWalletCoins(suiAddress);
@@ -68,13 +69,14 @@ export const useDonation = () => {
       delete tempWalletCoins[coinType];
     }
 
-    if (!selectedCharityAxelarNetworks.includes(SUI_AXELAR_CHAIN)) {
-      return availableTokens;
-    }
-
     // If charity is on Sui, add other tokens as well
     for (const walletToken of Object.values(tempWalletCoins)) {
       const decimals = walletToken.metadata?.decimals || 9;
+
+      // If donating on other chain, add only interchain tokens or tokens that can be swapped to SUI
+      if (!selectedCharityAxelarNetworks.includes(SUI_AXELAR_CHAIN) && !walletToken.metadata?.canSwapToSui) {
+        continue;
+      }
 
       availableTokens.push({
         id: walletToken.coinType,
@@ -100,6 +102,11 @@ export const useDonation = () => {
       return;
     }
 
+    // If switching back to donating on Sui or token is ITS, no need to require swaps
+    if (selectedCharityAxelarNetworks.includes(SUI_AXELAR_CHAIN) || selectedToken.itsTokenId) {
+      setDoSwapIsRequired(false);
+    }
+
     const stringifiedToken = JSON.stringify(selectedToken);
     let found = false;
     for (const token of availableTokens) {
@@ -123,7 +130,6 @@ export const useDonation = () => {
 
   const { mutateAsync: signAndExecuteTransaction, status } = useSignAndExecuteTransaction();
 
-  // TODO: Add a confirmation modal with share to X
   // Display confirmation modal after all the transactions are finished
   useEffect(() => {
     if (status === "success") {
@@ -190,6 +196,36 @@ export const useDonation = () => {
     fetchQuoteDebounced.current = setTimeout(() => fetchQuote(), 250);
   }, [amount, selectedToken]);
 
+  useEffect(() => {
+    if (!selectedToken || !selectedCharityAxelarNetworks.length) {
+      setDoSwapIsRequired(false);
+      setDoSwap(false);
+      return;
+    }
+
+    // If donating on another chain, token needs to be interchain or if it can be swapped it needs to always be swapped
+    if (
+      selectedCharityAxelarNetworks.length > 0 &&
+      !selectedCharityAxelarNetworks.includes(SUI_AXELAR_CHAIN) &&
+      !selectedToken.itsTokenId
+    ) {
+      // If somehow token is selected that can not be swapped, reset token
+      if (!walletCoins[selectedToken.currentChainInfo.tokenAddress]?.metadata?.canSwapToSui) {
+        setSelectedToken(null);
+        setDoSwapIsRequired(false);
+
+        return;
+      }
+
+      setDoSwapIsRequired(true);
+      setDoSwap(true);
+
+      return;
+    }
+
+    setDoSwapIsRequired(false);
+  }, [selectedCharityAxelarNetworks, selectedToken]);
+
   const doDonate = async () => {
     if (!selectedCharity || !selectedToken || !amount) return;
 
@@ -254,7 +290,7 @@ export const useDonation = () => {
   };
 
   const doDonateInterchain = async (tx: Transaction, coin: any, donatedTokenType: string) => {
-    const [crossChainGasCoin] = tx.splitCoins(tx.gas, [100_000_000]); // 0.1 SUI. TODO: Update this
+    const [crossChainGasCoin] = tx.splitCoins(tx.gas, [100_000_000]); // 0.1 SUI. TODO: Update this after it is supported by Axelar
 
     const tokenId = tx.moveCall({
       target: `${ENV.tokenIdContract}::token_id::from_address`,
@@ -303,6 +339,7 @@ export const useDonation = () => {
     swapAmount,
     doSwap,
     setDoSwap,
+    doSwapIsRequired,
     selectedCharityAxelarNetworks,
     availableTokens,
     doDonate,

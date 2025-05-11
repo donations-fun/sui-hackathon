@@ -33,6 +33,7 @@ export default function Donate() {
     swapAmount,
     doSwap,
     setDoSwap,
+    doSwapIsRequired,
     selectedCharityAxelarNetworks,
     availableTokens,
     doDonate,
@@ -94,7 +95,13 @@ export default function Donate() {
                 <div className="grid grid-cols-2 items-start gap-4">
                   <div className="flex flex-col justify-center">
                     <div className="flex items-center gap-1">
-                      <Switch id="do-swap" label="Do Swap" checked={doSwap} onCheckedChange={setDoSwap} />
+                      <Switch
+                        id="do-swap"
+                        label="Do Swap"
+                        checked={doSwap}
+                        onCheckedChange={setDoSwap}
+                        disabled={doSwapIsRequired}
+                      />
                       <label htmlFor="do-swap" className="text-sm font-medium leading-none cursor-pointer">
                         Exchange
                       </label>
@@ -107,8 +114,16 @@ export default function Donate() {
                             side="bottom"
                             className="px-3 py-2 flex justify-center items-center w-auto flex-col"
                           >
-                            If you want the token you have selected to count towards your Leaderboard value, <br />
-                            it can be swapped to SUI. A 0.2% commission is applied per trade
+                            {!doSwapIsRequired ? (
+                              <>
+                                If you want the token you have selected to count towards your Leaderboard value, <br />
+                                it can be swapped to SUI. A 0.2% commission is applied per trade
+                              </>
+                            ) : (
+                              <>
+                                This token can only be donated if swapped to Sui. A 0.2% commission is applied per trade
+                              </>
+                            )}
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>

@@ -68,6 +68,10 @@ export class ApiConfigService {
     return suiClientUrl;
   }
 
+  getSuiNetwork(): "mainnet" | "testnet" {
+    return this.getSuiClientUrl().includes("testnet") ? "testnet" : "mainnet";
+  }
+
   getContractPackageId(): string {
     const contractPackageId = this.configService.get<string>("CONTRACT_PACKAGE_ID");
     if (!contractPackageId) {
