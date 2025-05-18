@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query, Request, UseGuards } from '@nestjs/common';
 import { DonationRepository } from '@monorepo/common/database/repository/donation.repository';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { DonationExtended } from '@monorepo/common/database/entities/donation.extended';
@@ -25,7 +25,7 @@ export class DonationsController {
   @ApiParam({ name: 'chain', required: false })
   async getMyAccountDonations(
     @Request() req: any,
-    @Query('offset') offset: number = 0,
+    @Query('offset', ParseIntPipe) offset: number = 0,
     @Param('chain') chain?: string,
   ): Promise<DonationExtended[]> {
     const payload = req.user as JwtPayload;

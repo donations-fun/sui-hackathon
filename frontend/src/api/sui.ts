@@ -1,7 +1,8 @@
-import { SuiClient } from "@mysten/sui/client";
+import { CoinMetadata, SuiClient } from '@mysten/sui/client';
 import { ENV } from '@/utils/env.ts';
+import { ExtendedCoinMetadata, getCoinsMetadata } from '@/api/general';
 
-const client = new SuiClient({
+export const suiClient = new SuiClient({
   url: ENV.suiUrl,
 });
 
@@ -18,16 +19,7 @@ export interface TotalCoin {
   totalBalance: bigint;
   coinType: string;
   coinObjects: Coin[];
-  metadata?: CoinMetadata;
-}
-
-export interface CoinMetadata {
-  decimals: number;
-  description: string;
-  iconUrl?: string;
-  id?: string;
-  name: string;
-  symbol: string;
+  metadata?: ExtendedCoinMetadata;
 }
 
 export const SuiApi = {
@@ -46,7 +38,7 @@ export const SuiApi = {
           data: coins,
           hasNextPage,
           nextCursor,
-        } = await client.getAllCoins({
+        } = await suiClient.getAllCoins({
           owner: address,
           cursor,
         });
@@ -78,7 +70,7 @@ export const SuiApi = {
 
       const coinTypes = Object.keys(result);
 
-      const allCoinsMetadata = await this.getCoinsMetadata(coinTypes);
+      const allCoinsMetadata = await getCoinsMetadata(coinTypes);
 
       return coinTypes
         .map<TotalCoin>((coinType) => {
@@ -99,21 +91,5 @@ export const SuiApi = {
 
       return {};
     }
-  },
-
-  async getCoinsMetadata(coinTypes: string[]): Promise<{ [coinType: string]: CoinMetadata }> {
-    const allMetadata: CoinMetadata[] = await Promise.all(
-      coinTypes.map((coinType) =>
-        client.getCoinMetadata({
-          coinType,
-        }),
-      ),
-    );
-
-    return allMetadata.reduce((acc, metadata, index) => {
-      acc[coinTypes[index]] = metadata;
-
-      return acc;
-    }, {});
   },
 };

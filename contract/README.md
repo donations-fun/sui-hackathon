@@ -114,6 +114,7 @@ sui client ptb \
 
 ### Axelar ITS Register Coin
 
+#### Sui
 - calls https://github.com/axelarnetwork/axelar-cgp-sui/blob/main/move/interchain_token_service/sources/interchain_token_service.move#L107
 ```
 sui client ptb \
@@ -142,6 +143,42 @@ sui client ptb \
     --assign token_id \
     --move-call "0x481f5417b6b34ec378d4d922808651a7cc0be9e317c40b4b22b8a85a8e46df85::its::deploy_remote_interchain_token" \
     "<0x2::sui::SUI>" \
+    @0x127e4f0e8fdad2e50d9ad16a977d8472fb4d206271a6e219a803e136ff143b46 \
+    @0xb4ab8da228ae631476172849f05f71a99ef4bfd50cf682ec61fb027fc0123b2f \
+    @0xffd87a3b283764aad9197a0d0d5880c9085c68a5d055cfe9bac65298dd7f4cfc \
+    "'eth-sepolia'" \
+    token_id \
+    new_coin \
+    "''" \
+    @0x17450a2aaef18ed9b40453d2b86c6002bb957c54a42345b03c124068af03104b
+```
+
+#### BUCK
+```
+sui client ptb \
+    --move-call "0x361b728d45c287afadf388ed69c234678022940db880e4b4a2ba5ad09b348a2f::coin_info::from_info" \
+    "<0xf29aa1c5a176ecb6f8a54a3920d064660e6f5adf3d8ae79c883a7208f79719ee::buck::BUCK>" \
+    "'Bucket USD'" "'BUCK'" 9 \
+    --assign coin_info \
+    --move-call "0x361b728d45c287afadf388ed69c234678022940db880e4b4a2ba5ad09b348a2f::coin_management::new_locked" \
+    "<0xf29aa1c5a176ecb6f8a54a3920d064660e6f5adf3d8ae79c883a7208f79719ee::buck::BUCK>" \
+    --assign coin_management \
+    --move-call "0x361b728d45c287afadf388ed69c234678022940db880e4b4a2ba5ad09b348a2f::interchain_token_service::register_coin" \
+    "<0xf29aa1c5a176ecb6f8a54a3920d064660e6f5adf3d8ae79c883a7208f79719ee::buck::BUCK>" \
+    @0x127e4f0e8fdad2e50d9ad16a977d8472fb4d206271a6e219a803e136ff143b46 \
+    coin_info \
+    coin_management
+```
+
+```
+sui client ptb \
+    --split-coins gas [40000000] \
+    --assign new_coin \
+    --move-call "0x361b728d45c287afadf388ed69c234678022940db880e4b4a2ba5ad09b348a2f::token_id::from_address" \
+    @0xb7526c42fcada0ca7c5de5eaa4e4d69c4354bbb6459a7604b642adf680e95aa8 \
+    --assign token_id \
+    --move-call "0x481f5417b6b34ec378d4d922808651a7cc0be9e317c40b4b22b8a85a8e46df85::its::deploy_remote_interchain_token" \
+    "<0xf29aa1c5a176ecb6f8a54a3920d064660e6f5adf3d8ae79c883a7208f79719ee::buck::BUCK>" \
     @0x127e4f0e8fdad2e50d9ad16a977d8472fb4d206271a6e219a803e136ff143b46 \
     @0xb4ab8da228ae631476172849f05f71a99ef4bfd50cf682ec61fb027fc0123b2f \
     @0xffd87a3b283764aad9197a0d0d5880c9085c68a5d055cfe9bac65298dd7f4cfc \

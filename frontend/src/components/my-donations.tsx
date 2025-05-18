@@ -1,19 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Loader2, SquareArrowRight } from "lucide-react";
-import { axelarChainsToExplorer } from "@/utils/constants.ts";
-import { formatAddress, formatBalance, getAxelarExplorerUrl } from "@/utils/helpers.ts";
+import { axelarChainsToExplorer, ITEMS_PER_PAGE } from "@/utils/constants.ts";
+import { formatAddress, getAxelarExplorerUrl } from "@/utils/helpers.ts";
 import { useMyDonations } from "@/hooks/useMyDonations.ts";
 import React from "react";
 import { useApp } from "@/context/app.context.tsx";
 import { ChainsFilter } from "@/components/chains-filter.tsx";
 import { useChainsFilter } from "@/hooks/useChainsFilter.tsx";
 import DynamicImage from "@/components/dynamic-image.tsx";
+import { CoinDisplay } from "@/components/coin-display";
+import { Pagination } from "@/components/pagination";
 
 export default function MyDonations() {
-  const { chains, filteredChain, setFilteredChain } = useChainsFilter();
-
-  const { donations, isLoading } = useMyDonations(filteredChain);
   const { charities, knownTokensByAddress } = useApp();
+
+  const { chains, filteredChain, setFilteredChain } = useChainsFilter();
+  const { donations, isLoading, coinsMetadata, currentPage, setCurrentPage } = useMyDonations(filteredChain);
 
   return (
     <Card className="relative py-4 bg-white shadow-lg sm:rounded-3xl lg:p-6">
@@ -42,13 +44,12 @@ export default function MyDonations() {
                 target={"_blank"}
               >
                 <span className="text-sm text-gray-600">{formatAddress(donation.user, 16)}</span>
-                {/* TODO: Add token and proper decimals. The token can also be unknown by our backend, so need to fetch metadata in that case*/}
                 <span className="text-sm font-medium">
-                  {formatBalance(
-                    BigInt(donation.amount),
-                    knownTokensByAddress?.[donation.token]?.infoByChain?.[donation.sourceChain]?.decimals || 9,
-                  )}{" "}
-                  {knownTokensByAddress?.[donation.token]?.name || formatAddress(donation.token)}
+                  <CoinDisplay
+                    donation={donation}
+                    knownTokensByAddress={knownTokensByAddress}
+                    coinsMetadata={coinsMetadata}
+                  />
                 </span>
                 <span className="text-xs text-gray-500">{charities?.[donation.charityId]?.name}</span>
                 <span className="flex">
@@ -74,7 +75,14 @@ export default function MyDonations() {
             ))}
         </ul>
       </CardContent>
-      {/*  TODO: Add pagination */}
+      <div className="mt-6">
+        <Pagination
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          hasMore={donations?.length >= ITEMS_PER_PAGE}
+          maxDisplayedPages={3}
+        />
+      </div>
     </Card>
   );
 }

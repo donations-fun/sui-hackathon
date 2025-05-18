@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { ChartNoAxesCombined, Loader2 } from 'lucide-react';
 import React from "react";
 import { ChainsFilter } from "@/components/chains-filter";
 import { useChainsFilter } from "@/hooks/useChainsFilter";
@@ -14,8 +14,10 @@ export default function Leaderboard() {
   return (
     <Card className="relative py-4 bg-white shadow-lg sm:rounded-3xl lg:p-6">
       <CardHeader>
-        <CardTitle className="mb-1">
+        <CardTitle className="mb-1 flex">
           Leaderboard {isLoading && <Loader2 className="inline-flex h-4 w-4 animate-spin" />}
+
+          <ChartNoAxesCombined className="ml-1 h-4 w-4" />
         </CardTitle>
 
         <div className="flex space-x-1">

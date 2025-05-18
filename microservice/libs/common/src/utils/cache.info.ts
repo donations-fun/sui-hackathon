@@ -10,4 +10,11 @@ export class CacheInfo {
       ttl: Constants.oneMinute() * 15,
     };
   }
+
+  static CoinMetadata(coinType: string): CacheInfo {
+    return {
+      key: `coinMetadata:${coinType}`,
+      ttl: Constants.oneHour() * 6,
+    };
+  }
 }

@@ -27,7 +27,8 @@ export class LeaderboardProcessor implements OnModuleInit {
     await this.updateLeaderboard();
   }
 
-  @Cron('5/30 * * * *') // Every 30 minutes starting from minute 5 to be after the prices processing
+  // @Cron('5/15 * * * *') // Every 15 minutes starting from minute 5 to be after the prices processing
+  @Cron('* * * * *') // TODO: Every minute temporarily for demo
   async updateLeaderboard(): Promise<void> {
     await Locker.lock('update leaderboard', async () => {
       this.logger.debug('Starting to update leaderboard...');

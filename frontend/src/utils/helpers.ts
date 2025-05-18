@@ -40,6 +40,10 @@ export const formatBalance = (balance: bigint, decimals: number) => {
   }
 };
 
+export const toDenominatedAmount = (amount: string, decimals: number): number => {
+  return Math.round(parseFloat(amount) * 10 ** decimals);
+}
+
 export const getAxelarExplorerUrl = (txHash: string) => {
   return `${AXELAR_EXPLORER_URL}/gmp/${txHash}`;
 }

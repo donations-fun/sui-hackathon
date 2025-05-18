@@ -10,7 +10,7 @@
     "build": "nest build common && nest build",
     "build:all": "nest build common && nest build donate-processor",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest build common && nest build donate-processor & nest start",
+    "start": "nest start",
     "watch": "nest build common && nest build donate-processor & nest start --watch",
     "start:debug": "nest build common && nest build donate-processor & nest start --watch --debug",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
@@ -26,7 +26,7 @@
     "test:migrate": "dotenv -e .env.test -- prisma migrate deploy"
   },
   "dependencies": {
-    "@7kprotocol/sdk-ts": "^2.3.7",
+    "@flowx-finance/sdk": "^1.10.16",
     "@mysten/sui": "^1.17.0",
     "@nestjs/common": "^10.3.9",
     "@nestjs/config": "^3.2.2",
