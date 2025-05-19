@@ -285,9 +285,10 @@ export const useDonation = () => {
 
     // TODO: We remove the SteammPreparer from the arrays since it gives an error on Testnet at least
     // Check if the same on mainnet
-    trade.preparer._preparers = trade.preparer._preparers.filter((preparer) => {
-      return preparer.constructor.name !== "SteammPreparer";
-    });
+    trade.preparer._preparers.splice(1, 1); // remove element at index 1
+    // trade.preparer._preparers = trade.preparer._preparers.filter((preparer) => {
+    //   return !preparer.constructor.name.includes("SteammPreparer");
+    // });
 
     return await trade.swap({ client: suiClient, tx, coinIn });
   };
