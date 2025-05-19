@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,38 +10,45 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChartNoAxesCombined, Check, X } from "lucide-react";
+import { Check, ExternalLink } from "lucide-react";
 import confetti from "canvas-confetti";
 import { Charity } from "@/hooks/entities/charity";
 import twitterLogo from "@/assets/images/twitter.png";
 import { SelectedToken } from "@/hooks/entities/token";
+import { getAxelarExplorerUrl } from "@/utils/helpers";
+import { axelarChainsToExplorer, SUI_AXELAR_CHAIN } from "@/utils/constants";
+
+export interface SuccessModalData {
+  digest: string;
+  isCrossChain: boolean;
+}
 
 interface SuccessModalProps {
-  isOpen: boolean;
+  successModalData: SuccessModalData | null;
   onClose: () => void;
   donationAmount: string;
   token: SelectedToken;
   charity: Charity;
 }
 
-export function DonationSuccess({ isOpen, onClose, donationAmount, token, charity }: SuccessModalProps) {
+export function DonationSuccess({ successModalData, onClose, donationAmount, token, charity }: SuccessModalProps) {
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
 
   useEffect(() => {
-    if (isOpen && !hasTriggeredConfetti) {
+    if (successModalData && !hasTriggeredConfetti) {
       triggerFireworks();
       setHasTriggeredConfetti(true);
     }
 
-    if (!isOpen) {
+    if (!successModalData) {
       setHasTriggeredConfetti(false);
     }
-  }, [isOpen, hasTriggeredConfetti]);
+  }, [successModalData, hasTriggeredConfetti]);
 
   const triggerFireworks = () => {
     const duration = 3 * 1000;
     const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
 
     function randomInRange(min: number, max: number) {
       return Math.random() * (max - min) + min;
@@ -76,11 +83,11 @@ export function DonationSuccess({ isOpen, onClose, donationAmount, token, charit
     const tweetText = encodeURIComponent(
       `❤️I just donated ${donationAmount} $${token.symbol} to ${charity.twitterUsername ? `@${charity.twitterUsername}` : charity.name} through @donations_fun!\n\nJoin me in making a difference!\n👉https://donations.fun`,
     );
-    window.open(`https://x.com/intent/tweet?text=${tweetText}`, "_blank", "noopener,noreferrer");
+    window.open(`https://x.com/intent/post?text=${tweetText}`, "_blank", "noopener,noreferrer");
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={!!successModalData} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md bg-blue-100">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
@@ -117,10 +124,31 @@ export function DonationSuccess({ isOpen, onClose, donationAmount, token, charit
           </div>
           <p className="text-center">Thank you for your generosity! Your donation will help make a difference.</p>
         </div>
-        <DialogFooter className="sm:justify-center">
-          <Button onClick={handleShareOnTwitter} className="flex items-center gap-2 rounded-lg">
+        <DialogFooter className="sm:justify-center -mt-1">
+          <Button
+            onClick={handleShareOnTwitter}
+            className="flex items-center gap-2 rounded-xl text-lg font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:border-2 hover:border-t-0 transition-all duration-200 border-1 border-t-0 border-cyan-400 px-6 py-5"
+          >
             <img src={twitterLogo} alt="X logo" className="w-6 h-6 cursor-pointer" />
             Share your support on X
+          </Button>
+        </DialogFooter>
+        <DialogFooter className="sm:justify-center -mt-1">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2 hover:bg-gray-50 border-blue-300 text-cyan-400 hover:text-cyan-500"
+            onClick={() =>
+              window.open(
+                successModalData.isCrossChain
+                  ? getAxelarExplorerUrl(successModalData.digest)
+                  : axelarChainsToExplorer[SUI_AXELAR_CHAIN] + `${successModalData.digest}`,
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            <ExternalLink className="h-4 w-4" />
+            View transaction
           </Button>
         </DialogFooter>
       </DialogContent>

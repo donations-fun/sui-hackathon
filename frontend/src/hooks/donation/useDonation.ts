@@ -13,6 +13,7 @@ import { AggregatorQuoter, Coin, SingleQuoteQueryParams, TradeBuilder } from "@f
 import { suiClient } from "@/api/sui";
 import { GetRoutesResult } from "@flowx-finance/sdk/src/universal-router/quoters/types";
 import { SUI_TYPE_ARG } from "@mysten/sui/utils";
+import { SuccessModalData } from "@/components/donation-success";
 
 export const useDonation = () => {
   const { suiAddress, charities, knownTokens } = useApp();
@@ -23,7 +24,7 @@ export const useDonation = () => {
   const [swapAmount, setSwapAmount] = useState("");
   const [doSwap, setDoSwap] = useState(false);
   const [doSwapIsRequired, setDoSwapIsRequired] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successModalData, setSuccessModalData] = useState<SuccessModalData>(null);
 
   const { walletCoins, isLoading, refetch } = useWalletCoins(suiAddress);
 
@@ -137,14 +138,14 @@ export const useDonation = () => {
         id: "waiting-for-donation",
       });
 
-      setIsSuccessModalOpen(true);
-
       // Fetch coins with a timeout so rpc reflects changes
       setTimeout(() => {
         refetch();
       }, 250);
     } else if (status === "error") {
       toast.error("Failed to donate...");
+
+      setSuccessModalData(null);
     }
   }, [status]);
 
@@ -263,6 +264,8 @@ export const useDonation = () => {
         transaction: tx,
       });
 
+      setSuccessModalData({ digest: result.digest, isCrossChain: false });
+
       console.log("Transaction successful:", result);
     } catch (error) {
       console.error("Transaction failed:", error);
@@ -322,6 +325,8 @@ export const useDonation = () => {
         transaction: tx,
       });
 
+      setSuccessModalData({ digest: result.digest, isCrossChain: true });
+
       console.log("Transaction successful:", result);
     } catch (error) {
       console.error("Transaction failed:", error);
@@ -344,7 +349,7 @@ export const useDonation = () => {
     availableTokens,
     doDonate,
     isLoading: isLoading || status === "pending",
-    isSuccessModalOpen,
-    setIsSuccessModalOpen,
+    successModalData,
+    setSuccessModalData,
   };
 };
