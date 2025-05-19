@@ -71,6 +71,6 @@ export class GeneralService {
       console.warn(`Token ${coinType} can not be swapped to Sui`);
     }
 
-    return true; // TODO:
+    return false;
   }
 }
