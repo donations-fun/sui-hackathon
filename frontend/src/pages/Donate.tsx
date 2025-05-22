@@ -38,8 +38,8 @@ export default function Donate() {
     availableTokens,
     doDonate,
     isLoading,
-    isSuccessModalOpen,
-    setIsSuccessModalOpen,
+    successModalData,
+    setSuccessModalData,
   } = useDonation();
 
   const { chains, filteredChain, setFilteredChain } = useChainsFilter();
@@ -206,9 +206,9 @@ export default function Donate() {
 
       {selectedToken && selectedCharityId && (
         <DonationSuccess
-          isOpen={isSuccessModalOpen}
+          successModalData={successModalData}
           onClose={() => {
-            setIsSuccessModalOpen(false);
+            setSuccessModalData(null);
             setAmount("");
           }}
           donationAmount={amount}

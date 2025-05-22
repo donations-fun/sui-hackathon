@@ -32,4 +32,6 @@ export class DonationsController {
 
     return this.donationsRepository.getAccountDonations(payload.twitterUsername, offset, chain);
   }
+
+  // TODO: Add endpoint for charity owner to view all donations for it's charity
 }

@@ -14,7 +14,8 @@ export const useLeaderboard = (
     queryKey: ["leaderboard", chain],
     queryFn: () => fetchLeaderboard(chain),
     refetchOnWindowFocus: false,
-    staleTime: 30_000,
+    staleTime: 60_000,
+    refetchInterval: 60_000,
   });
 
   return {
